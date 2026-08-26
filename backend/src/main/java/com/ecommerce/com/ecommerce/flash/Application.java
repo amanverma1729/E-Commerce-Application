@@ -6,7 +6,10 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+
 @SpringBootApplication
+@EnableJpaAuditing
 @EnableJpaRepositories("com.ecommerce.com.ecommerce.flash.repository")
 @EntityScan(basePackages = "com.ecommerce.com.ecommerce.flash")
 @ComponentScan("com.ecommerce.com.ecommerce.flash")

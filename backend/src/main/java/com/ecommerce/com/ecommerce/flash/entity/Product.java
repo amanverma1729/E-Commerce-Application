@@ -7,7 +7,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import java.time.LocalDateTime;
+
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -32,8 +38,20 @@ public class Product {
     @Column(nullable = false)
     private boolean available = false;
 
-    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+    @Column(nullable = false)
     private boolean approved = false;
+
+    @Version
+    @Column(nullable = false)
+    private Long version = 0L;
+
+    @CreatedDate
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
     // Many products belong to one Product Owner
     @ManyToOne(fetch = FetchType.EAGER)
