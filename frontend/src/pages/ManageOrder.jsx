@@ -1,0 +1,192 @@
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import styles from "./manageorder.module.css";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
+import {
+  FiPackage,
+  FiTruck,
+  FiXCircle,
+  FiClock,
+  FiCheckCircle,
+  FiShoppingBag,
+  FiArrowLeft,
+} from "react-icons/fi";
+
+const ManageOrders = () => {
+  const productOwnerId = Number(sessionStorage.getItem("productOwnerId"));
+  const navigate = useNavigate();
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (productOwnerId) {
+      axios
+        .get(`http://localhost:9090/orders/owner/${productOwnerId}`)
+        .then((res) => {
+          setOrders(res.data || []);
+        })
+        .catch((err) => {
+          console.error("Error fetching orders:", err);
+          toast.error("Error fetching incoming orders");
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    } else {
+      toast.error("Product owner not logged in");
+      setLoading(false);
+    }
+  }, [productOwnerId]);
+
+  const markOrderAsShipped = (orderId) => {
+    axios
+      .put(`http://localhost:9090/orders/${orderId}`, { status: "SHIPPED" })
+      .then(() => {
+        toast.success(`Order #${orderId} marked as SHIPPED`);
+        setOrders((prevOrders) =>
+          prevOrders.map((order) =>
+            order.id === orderId ? { ...order, status: "SHIPPED" } : order
+          )
+        );
+      })
+      .catch((err) => {
+        console.error("Error updating order:", err);
+        toast.error("Failed to update order status");
+      });
+  };
+
+  const cancelOrder = (orderId) => {
+    axios
+      .delete(`http://localhost:9090/orders/${orderId}`)
+      .then(() => {
+        toast.success("Order cancelled and removed");
+        setOrders((prevOrders) =>
+          prevOrders.filter((order) => order.id !== orderId)
+        );
+      })
+      .catch((err) => {
+        console.error("Error cancelling order:", err);
+        toast.error("Failed to cancel order");
+      });
+  };
+
+  const getStatusBadge = (status) => {
+    const s = (status || "").toLowerCase();
+    if (s.includes("shipped")) {
+      return (
+        <span className={styles.statusShipped}>
+          <FiTruck /> Shipped
+        </span>
+      );
+    } else if (s.includes("paid") || s.includes("confirmed")) {
+      return (
+        <span className={styles.statusSuccess}>
+          <FiCheckCircle /> {status}
+        </span>
+      );
+    } else {
+      return (
+        <span className={styles.statusPending}>
+          <FiClock /> {status || "Processing"}
+        </span>
+      );
+    }
+  };
+
+  return (
+    <div className={styles.pageWrapper}>
+      <div className={styles.container}>
+        <button onClick={() => navigate("/productlist")} className={styles.backButton}>
+          <FiArrowLeft /> Back to Products
+        </button>
+
+        <div className={styles.headerRow}>
+          <div className={styles.iconBadge}>
+            <FiTruck />
+          </div>
+          <div>
+            <h1 className={styles.title}>Fulfillment Hub</h1>
+            <p className={styles.subtitle}>
+              Manage customer orders, update shipping statuses, and manage cancellations
+            </p>
+          </div>
+        </div>
+
+        {loading ? (
+          <div className={styles.loadingState}>
+            <div className={styles.spinner} />
+            <p>Loading incoming orders...</p>
+          </div>
+        ) : orders.length === 0 ? (
+          <div className={styles.emptyState}>
+            <FiShoppingBag className={styles.emptyIcon} />
+            <h2>No Active Orders</h2>
+            <p>You currently don't have any customer orders waiting for fulfillment.</p>
+          </div>
+        ) : (
+          <div className={styles.orderGrid}>
+            {orders.map((order) => (
+              <div key={order.id} className={styles.orderCard}>
+                <div className={styles.cardHeader}>
+                  <div>
+                    <span className={styles.orderRef}>Order #{order.id}</span>
+                    <span className={styles.orderCategory}>
+                      {order.product?.category || "General"}
+                    </span>
+                  </div>
+                  {getStatusBadge(order.status)}
+                </div>
+
+                <div className={styles.cardBody}>
+                  <div className={styles.thumbWrapper}>
+                    {order.product?.productImageBase64 ? (
+                      <img
+                        src={`data:image/jpeg;base64,${order.product.productImageBase64}`}
+                        alt={order.product?.name}
+                      />
+                    ) : (
+                      <div className={styles.thumbPlaceholder}>
+                        <FiPackage />
+                      </div>
+                    )}
+                  </div>
+
+                  <div className={styles.productDetails}>
+                    <h3 className={styles.productName}>{order.product?.name}</h3>
+                    <div className={styles.priceRow}>
+                      <span className={styles.priceValue}>₹{order.product?.price}</span>
+                      <span className={styles.paymentTag}>
+                        Method: {order.paymentMethod || "COD"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className={styles.cardFooter}>
+                  <button
+                    className={styles.cancelButton}
+                    onClick={() => cancelOrder(order.id)}
+                  >
+                    <FiXCircle /> Cancel Order
+                  </button>
+
+                  <button
+                    className={styles.shippedButton}
+                    onClick={() => markOrderAsShipped(order.id)}
+                    disabled={order.status === "SHIPPED"}
+                  >
+                    <FiTruck /> {order.status === "SHIPPED" ? "Shipped" : "Mark as Shipped"}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default ManageOrders;
+
