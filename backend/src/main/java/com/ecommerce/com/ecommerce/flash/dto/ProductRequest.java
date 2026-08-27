@@ -37,6 +37,10 @@ public class ProductRequest {
         }
     }
 
+    public Long getSellerId() {
+        return this.productOwnerId;
+    }
+
     private boolean available = true;
     private List<String> productSizes;
     private List<String> productColors;

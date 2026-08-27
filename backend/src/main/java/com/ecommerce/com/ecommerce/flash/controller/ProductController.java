@@ -114,9 +114,6 @@ public class ProductController {
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyRole('SELLER', 'ADMIN')")
     public ResponseEntity<ApiResponse<ProductResponse>> addProductJson(@RequestBody ProductRequest request) {
-        if (request.getProductOwnerId() == null && request.getSellerId() != null) {
-            request.setProductOwnerId(request.getSellerId());
-        }
         ProductResponse response = productService.createProduct(request, null);
         return ResponseEntity.ok(ApiResponse.success("Product added successfully", response));
     }
