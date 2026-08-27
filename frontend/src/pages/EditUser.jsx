@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import styles from "./signup.module.css"; // Reusing the signup styles
-import axios from "axios";
+import styles from "./signup.module.css";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import apiClient from "../api/apiClient";
 
 const EditUser = () => {
-  const userID = sessionStorage.getItem("userID");
+  const userID = sessionStorage.getItem("userID") || localStorage.getItem("userID");
   const navigate = useNavigate();
   const [userDetails, setUserDetails] = useState({
     name: "",
@@ -16,10 +16,11 @@ const EditUser = () => {
 
   useEffect(() => {
     if (userID) {
-      axios
-        .get(`http://localhost:9090/users/id/${userID}`)
+      apiClient
+        .get(`/api/v1/users/${userID}`)
         .then((res) => {
-          setUserDetails(res.data);
+          const data = res.data?.data || res.data;
+          setUserDetails(data);
         })
         .catch((err) => {
           console.error("Error fetching user details:", err);
@@ -37,13 +38,11 @@ const EditUser = () => {
 
   const updateUser = (e) => {
     e.preventDefault();
-    axios
-      .put(`http://localhost:9090/users/update/${userID}`, userDetails, {
-        headers: { "Content-Type": "application/json" },
-      })
+    apiClient
+      .put(`/api/v1/users/${userID}`, userDetails)
       .then(() => {
         toast.success("Profile updated successfully");
-        navigate("/userprofile", { replace: true }); // Redirect to profile after update
+        navigate("/userprofile", { replace: true });
       })
       .catch((err) => {
         console.error("Error updating profile:", err);
@@ -92,7 +91,7 @@ const EditUser = () => {
               placeholder="Enter phone number"
               minLength={10}
               maxLength={10}
-              value={userDetails.phoneNumber}
+              value={userDetails.phoneNumber || userDetails.phone || ""}
               onChange={handleChange}
               required
             />

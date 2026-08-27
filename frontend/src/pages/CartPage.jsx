@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import styles from "./cart.module.css";
@@ -7,16 +6,16 @@ import {
   FiShoppingCart,
   FiTrash2,
   FiZap,
-  FiArrowRight,
   FiShoppingBag,
   FiShield,
   FiUser,
   FiPackage,
 } from "react-icons/fi";
+import apiClient from "../api/apiClient";
 
 const CartPage = () => {
   const navigate = useNavigate();
-  const userID = sessionStorage.getItem("userID");
+  const userID = sessionStorage.getItem("userID") || localStorage.getItem("userID");
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -26,10 +25,11 @@ const CartPage = () => {
       setLoading(false);
       return;
     }
-    axios
-      .get(`http://localhost:9090/cart/user/${userID}`)
+    apiClient
+      .get(`/api/v1/cart/user/${userID}`)
       .then((res) => {
-        setCartItems(res.data || []);
+        const data = res.data?.data || res.data;
+        setCartItems(Array.isArray(data) ? data : []);
         setLoading(false);
       })
       .catch((err) => {
@@ -41,7 +41,7 @@ const CartPage = () => {
 
   const handleRemoveItem = async (orderId) => {
     try {
-      await axios.delete(`http://localhost:9090/cart/${orderId}`);
+      await apiClient.delete(`/api/v1/cart/${orderId}`);
       toast.success("Item removed from cart");
       setCartItems(cartItems.filter((item) => item.id !== orderId));
     } catch (error) {
@@ -199,4 +199,3 @@ const CartPage = () => {
 };
 
 export default CartPage;
-

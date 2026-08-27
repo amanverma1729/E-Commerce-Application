@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import styles from "./signup.module.css";
-import axios from "axios";
 import toast from "react-hot-toast";
 import { useNavigate, Link } from "react-router-dom";
 import {
@@ -10,9 +9,9 @@ import {
   FiPhone,
   FiMapPin,
   FiUserPlus,
-  FiCheckCircle,
   FiZap,
 } from "react-icons/fi";
+import apiClient from "../api/apiClient";
 
 const Signup = () => {
   const [signupuser, setSignupuser] = useState({
@@ -42,10 +41,8 @@ const Signup = () => {
     }
 
     setLoading(true);
-    axios
-      .post("http://localhost:9090/users/register", signupuser, {
-        headers: { "Content-Type": "application/json" },
-      })
+    apiClient
+      .post("/api/v1/auth/register", signupuser)
       .then(() => {
         toast.success("Account created successfully! Please sign in.");
         setSignupuser({
@@ -60,7 +57,8 @@ const Signup = () => {
       })
       .catch((err) => {
         console.error("Error:", err.response);
-        toast.error("Something went wrong during registration");
+        const msg = err.response?.data?.message || "Something went wrong during registration";
+        toast.error(msg);
       })
       .finally(() => {
         setLoading(false);
@@ -188,4 +186,3 @@ const Signup = () => {
 };
 
 export default Signup;
-

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import toast from "react-hot-toast";
 import { useParams, useNavigate } from "react-router-dom";
 import styles from "./orderPage.module.css";
@@ -13,6 +12,7 @@ import {
   FiArrowRight,
   FiShoppingBag,
 } from "react-icons/fi";
+import apiClient from "../api/apiClient";
 
 const OrdersPage = () => {
   const { id: userIdParam } = useParams();
@@ -22,8 +22,8 @@ const OrdersPage = () => {
 
   useEffect(() => {
     if (userIdParam) {
-      axios
-        .get(`http://localhost:9090/orders/user/${userIdParam}`)
+      apiClient
+        .get(`/api/v1/orders/user/${userIdParam}`)
         .then((res) => {
           const list = Array.isArray(res.data) ? res.data : (res.data?.data || []);
           setOrders(list);
@@ -42,7 +42,7 @@ const OrdersPage = () => {
 
   const handleRemoveFromOrder = async (orderId) => {
     try {
-      await axios.delete(`http://localhost:9090/orders/${orderId}`);
+      await apiClient.delete(`/api/v1/orders/${orderId}`);
       toast.success("Order cancelled successfully");
       setOrders(orders.filter((order) => order.id !== orderId));
     } catch (error) {
@@ -185,7 +185,7 @@ const OrdersPage = () => {
                     {order.product?.id && (
                       <button
                         className={styles.viewBtn}
-                        onClick={() => navigate(`/product/${order.product.id}`)}
+                        onClick={() => navigate(`/products/${order.product.id}`)}
                       >
                         View Product <FiArrowRight />
                       </button>

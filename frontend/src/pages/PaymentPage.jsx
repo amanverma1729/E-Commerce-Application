@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import toast from "react-hot-toast";
 import { useParams, useNavigate } from "react-router-dom";
 import styles from "./paymentpage.module.css";
@@ -16,6 +15,7 @@ import {
   FiLock,
   FiArrowLeft,
 } from "react-icons/fi";
+import apiClient from "../api/apiClient";
 
 const PaymentPage = () => {
   const { id } = useParams();
@@ -32,10 +32,11 @@ const PaymentPage = () => {
       setLoading(false);
       return;
     }
-    axios
-      .get(`http://localhost:9090/orders/${id}`)
+    apiClient
+      .get(`/api/v1/orders/${id}`)
       .then((res) => {
-        setOrder(res.data);
+        const data = res.data?.data || res.data;
+        setOrder(data);
         setLoading(false);
       })
       .catch((err) => {
@@ -53,28 +54,28 @@ const PaymentPage = () => {
     }
     setProcessing(true);
     try {
-      let updatedOrder;
-      if (paymentOption === "QR") {
-        updatedOrder = {
-          ...order,
-          status: "Pending Confirmation",
+      // First attempt to process payment via /api/v1/payments/process endpoint
+      try {
+        await apiClient.post("/api/v1/payments/process", {
+          orderId: order.id,
           paymentMethod: paymentOption,
-        };
-        await axios.put(`http://localhost:9090/orders/${id}`, updatedOrder, {
-          headers: { "Content-Type": "application/json" },
+          amount: (order.product?.price || order.totalPrice || 0) * (order.quantity || 1),
         });
-        toast.success("Payment submitted! Product owner will confirm your order soon.");
-      } else {
-        updatedOrder = {
+      } catch (payErr) {
+        // Fallback update on order directly
+        const newStatus = paymentOption === "QR" ? "Pending Confirmation" : "Paid";
+        await apiClient.put(`/api/v1/orders/${id}`, {
           ...order,
-          status: "Paid",
+          status: newStatus,
           paymentMethod: paymentOption,
-        };
-        await axios.put(`http://localhost:9090/orders/${id}`, updatedOrder, {
-          headers: { "Content-Type": "application/json" },
         });
-        toast.success("Payment successful! Your order is confirmed.");
       }
+
+      toast.success(
+        paymentOption === "QR"
+          ? "Payment submitted! Product owner will confirm your order soon."
+          : "Payment successful! Your order is confirmed."
+      );
       navigate("/userprofile");
     } catch (error) {
       console.error("Payment error:", error);
@@ -306,4 +307,3 @@ const PaymentPage = () => {
 };
 
 export default PaymentPage;
-

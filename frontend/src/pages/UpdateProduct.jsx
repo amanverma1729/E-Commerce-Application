@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
 import styles from "./updateproduct.module.css";
+import apiClient from "../api/apiClient";
 
 const categoryOptions = {
   Shoes: {
@@ -55,7 +55,7 @@ const UpdateProduct = () => {
     description: "",
     price: 0,
     stock: 0,
-    category: "Shoes", // Default category
+    category: "Shoes",
     productSizes: [],
     productColors: [],
     productImage: "",
@@ -64,18 +64,17 @@ const UpdateProduct = () => {
   useEffect(() => {
     async function fetchProduct() {
       try {
-        const { data } = await axios.get(
-          `http://localhost:9090/products/${id}`
-        );
+        const { data } = await apiClient.get(`/api/v1/products/${id}`);
+        const productData = data.data || data;
         setEditProduct({
-          name: data.name || "",
-          description: data.description || "",
-          price: data.price || 0,
-          stock: data.stock || 0,
-          category: data.category || "Shoes",
-          productSizes: data.productSizes || [],
-          productColors: data.productColors || [],
-          productImage: data.productImage || "",
+          name: productData.name || "",
+          description: productData.description || "",
+          price: productData.price || 0,
+          stock: productData.stock || 0,
+          category: productData.category || "Shoes",
+          productSizes: productData.productSizes || [],
+          productColors: productData.productColors || [],
+          productImage: productData.productImage || "",
         });
       } catch (error) {
         toast.error("Failed to fetch product details");
@@ -113,9 +112,7 @@ const UpdateProduct = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`http://localhost:9090/products/${id}`, editProduct, {
-        headers: { "Content-Type": "application/json" },
-      });
+      await apiClient.put(`/api/v1/products/${id}`, editProduct);
       toast.success("Product updated successfully");
       navigate("/productlist");
     } catch (error) {

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
 import toast from "react-hot-toast";
 import styles from "./productpage.module.css";
 import {
@@ -11,9 +10,9 @@ import {
   FiTruck,
   FiRotateCcw,
   FiStar,
-  FiCheckCircle,
   FiShoppingBag,
 } from "react-icons/fi";
+import apiClient from "../api/apiClient";
 
 const ProductPage = () => {
   const { id } = useParams();
@@ -24,7 +23,7 @@ const ProductPage = () => {
   const [selectedColor, setSelectedColor] = useState("");
   const [quantity, setQuantity] = useState(1);
 
-  const userID = sessionStorage.getItem("userID");
+  const userID = sessionStorage.getItem("userID") || localStorage.getItem("userID");
 
   useEffect(() => {
     if (!id) {
@@ -32,15 +31,16 @@ const ProductPage = () => {
       setLoading(false);
       return;
     }
-    axios
-      .get(`http://localhost:9090/products/${id}`)
+    apiClient
+      .get(`/api/v1/products/${id}`)
       .then((res) => {
-        setProduct(res.data);
-        if (res.data.productSizes && res.data.productSizes.length > 0) {
-          setSelectedSize(res.data.productSizes[0]);
+        const data = res.data?.data || res.data;
+        setProduct(data);
+        if (data.productSizes && data.productSizes.length > 0) {
+          setSelectedSize(data.productSizes[0]);
         }
-        if (res.data.productColors && res.data.productColors.length > 0) {
-          setSelectedColor(res.data.productColors[0]);
+        if (data.productColors && data.productColors.length > 0) {
+          setSelectedColor(data.productColors[0]);
         }
         setLoading(false);
       })
@@ -84,13 +84,13 @@ const ProductPage = () => {
         quantity: quantity,
         status: "Ordered",
       };
-      const response = await axios.post(
-        "http://localhost:9090/orders",
-        orderPayload,
-        { headers: { "Content-Type": "application/json" } }
+      const response = await apiClient.post(
+        "/api/v1/orders",
+        orderPayload
       );
+      const data = response.data?.data || response.data;
       toast.success("Order initiated successfully");
-      navigate(`/payment/${response.data.id}`);
+      navigate(`/payment/${data.id}`);
     } catch (error) {
       console.error("Error placing order:", error);
       toast.error("Failed to place order");
@@ -110,9 +110,7 @@ const ProductPage = () => {
         quantity: quantity,
         status: "In Cart",
       };
-      await axios.post("http://localhost:9090/orders", orderPayload, {
-        headers: { "Content-Type": "application/json" },
-      });
+      await apiClient.post("/api/v1/orders", orderPayload);
       toast.success("Product added to cart!");
     } catch (error) {
       console.error("Error adding to cart:", error);
@@ -288,4 +286,3 @@ const ProductPage = () => {
 };
 
 export default ProductPage;
-

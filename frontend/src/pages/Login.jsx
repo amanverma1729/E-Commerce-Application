@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import styles from "./login.module.css";
-import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import { FiMail, FiLock, FiLogIn, FiShield, FiUserCheck, FiZap } from "react-icons/fi";
+import apiClient from "../api/apiClient";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -26,30 +26,40 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post(
-        "http://localhost:9090/auth/login",
-        formData,
-        {
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true,
-        }
-      );
+      const response = await apiClient.post("/api/v1/auth/login", formData);
+      const data = response.data.data || response.data;
+      const { token, accessToken, refreshToken, type, id, email, role, message } = data;
 
-      const { type, id, message } = response.data;
+      const activeToken = accessToken || token;
+      if (activeToken) {
+        localStorage.setItem("token", activeToken);
+        localStorage.setItem("accessToken", activeToken);
+        sessionStorage.setItem("token", activeToken);
+      }
+      if (refreshToken) {
+        localStorage.setItem("refreshToken", refreshToken);
+        sessionStorage.setItem("refreshToken", refreshToken);
+      }
 
-      if (type === "PRODUCT_OWNER") {
+      if (type === "PRODUCT_OWNER" || role === "SELLER") {
         sessionStorage.setItem("userType", "PRODUCT_OWNER");
         sessionStorage.setItem("productOwnerId", id);
+        localStorage.setItem("userType", "PRODUCT_OWNER");
+        localStorage.setItem("productOwnerId", id);
         toast.success("Welcome back, Seller!");
         navigate("/productlist");
-      } else if (type === "USER") {
+      } else if (type === "USER" || role === "CUSTOMER" || role === "USER") {
         sessionStorage.setItem("userType", "USER");
         sessionStorage.setItem("userID", id);
+        localStorage.setItem("userType", "USER");
+        localStorage.setItem("userID", id);
         toast.success("Login successful!");
         navigate("/userprofile");
-      } else if (type === "ADMIN") {
+      } else if (type === "ADMIN" || role === "ADMIN") {
         sessionStorage.setItem("userType", "ADMIN");
         sessionStorage.setItem("adminId", id);
+        localStorage.setItem("userType", "ADMIN");
+        localStorage.setItem("adminId", id);
         toast.success("Welcome back, Admin!");
         navigate("/admindashboard");
       } else {
@@ -132,4 +142,3 @@ const Login = () => {
 };
 
 export default Login;
-

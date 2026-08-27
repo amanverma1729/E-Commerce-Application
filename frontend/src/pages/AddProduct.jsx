@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import styles from "./addproduct.module.css";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
@@ -9,11 +8,11 @@ import {
   FiTag,
   FiDollarSign,
   FiLayers,
-  FiGrid,
   FiArrowLeft,
   FiImage,
   FiCheck,
 } from "react-icons/fi";
+import apiClient from "../api/apiClient";
 
 const AddProduct = () => {
   const [productOwnerId, setProductOwnerId] = useState(null);
@@ -31,7 +30,7 @@ const AddProduct = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedId = sessionStorage.getItem("productOwnerId");
+    const storedId = sessionStorage.getItem("productOwnerId") || localStorage.getItem("productOwnerId");
     if (storedId) {
       setProductOwnerId(storedId);
     }
@@ -83,7 +82,7 @@ const AddProduct = () => {
     });
 
     try {
-      await axios.post("http://localhost:9090/products", formData, {
+      await apiClient.post("/api/v1/products", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       toast.success("Product listed successfully!");
@@ -318,4 +317,3 @@ const AddProduct = () => {
 };
 
 export default AddProduct;
-

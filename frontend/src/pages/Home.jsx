@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import styles from "./home.module.css";
@@ -21,28 +20,67 @@ import {
   FiEye,
   FiShoppingCart,
 } from "react-icons/fi";
+import apiClient from "../api/apiClient";
 
 const Home = () => {
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
 
   const navigate = useNavigate();
-  const userID = sessionStorage.getItem("userID");
+  const userID = sessionStorage.getItem("userID") || localStorage.getItem("userID");
 
-  useEffect(() => {
-    axios
-      .get("http://localhost:9090/products/approved")
+  const fetchProducts = (currentPage = 0, search = "", category = "all") => {
+    setLoading(true);
+    let url = `/api/v1/products?page=${currentPage}&size=12&sort=id,desc`;
+    if (search) {
+      url += `&search=${encodeURIComponent(search)}`;
+    }
+    if (category && category !== "all") {
+      url += `&category=${encodeURIComponent(category)}`;
+    }
+
+    apiClient
+      .get(url)
       .then((res) => {
-        setProducts(res.data || []);
+        const data = res.data?.data || res.data;
+        if (data && data.content) {
+          setProducts(data.content || []);
+          setTotalPages(data.totalPages || 1);
+        } else if (Array.isArray(data)) {
+          setProducts(data);
+          setTotalPages(1);
+        } else {
+          setProducts([]);
+        }
         setLoading(false);
       })
       .catch((err) => {
-        console.error("Error fetching approved products:", err);
-        setLoading(false);
+        console.error("Error fetching products:", err);
+        // Fallback to legacy endpoint if required
+        apiClient
+          .get("/api/v1/products/approved")
+          .then((res) => {
+            const legacyData = res.data?.data || res.data;
+            setProducts(Array.isArray(legacyData) ? legacyData : []);
+            setLoading(false);
+          })
+          .catch(() => setLoading(false));
       });
-  }, []);
+  };
+
+  useEffect(() => {
+    fetchProducts(page, searchTerm, selectedCategory);
+  }, [page, selectedCategory]);
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    setPage(0);
+    fetchProducts(0, searchTerm, selectedCategory);
+  };
 
   const uniqueCategories = [
     ...new Set(
@@ -51,20 +89,6 @@ const Home = () => {
         .filter(Boolean)
     ),
   ];
-
-  // Filter products based on search term and category chip
-  const filteredProducts = products.filter((p) => {
-    const matchesSearch =
-      p.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.category?.toLowerCase().includes(searchTerm.toLowerCase());
-
-    const matchesCategory =
-      selectedCategory === "all" ||
-      p.category?.toLowerCase() === selectedCategory.toLowerCase();
-
-    return matchesSearch && matchesCategory;
-  });
 
   const handleCardClick = (productId) => {
     if (userID) {
@@ -83,19 +107,26 @@ const Home = () => {
       return;
     }
     try {
-      const orderPayload = {
-        product: { id: product.id },
-        user: { id: parseInt(userID) },
+      await apiClient.post("/api/v1/cart/items", {
+        productId: product.id,
         quantity: 1,
-        status: "In Cart",
-      };
-      await axios.post("http://localhost:9090/orders", orderPayload, {
-        headers: { "Content-Type": "application/json" },
       });
       toast.success(`${product.name} added to cart!`);
     } catch (err) {
       console.error("Error adding to cart:", err);
-      toast.error("Failed to add product to cart");
+      // Fallback order creation if legacy cart endpoint is checked
+      try {
+        const orderPayload = {
+          product: { id: product.id },
+          user: { id: parseInt(userID) },
+          quantity: 1,
+          status: "In Cart",
+        };
+        await apiClient.post("/api/v1/orders", orderPayload);
+        toast.success(`${product.name} added to cart!`);
+      } catch (legacyErr) {
+        toast.error(err.response?.data?.message || "Failed to add product to cart");
+      }
     }
   };
 
@@ -255,7 +286,7 @@ const Home = () => {
         </div>
 
         {/* Live Search & Filter Controls */}
-        <div className={styles.controlsBar}>
+        <form onSubmit={handleSearchSubmit} className={styles.controlsBar}>
           <div className={styles.searchBox}>
             <FiSearch className={styles.searchIcon} />
             <input
@@ -266,8 +297,12 @@ const Home = () => {
             />
             {searchTerm && (
               <button
+                type="button"
                 className={styles.clearSearchBtn}
-                onClick={() => setSearchTerm("")}
+                onClick={() => {
+                  setSearchTerm("");
+                  fetchProducts(0, "", selectedCategory);
+                }}
               >
                 ✕
               </button>
@@ -276,15 +311,17 @@ const Home = () => {
 
           <div className={styles.categoryFilterScroll}>
             <button
+              type="button"
               className={`${styles.filterChip} ${
                 selectedCategory === "all" ? styles.activeChip : ""
               }`}
               onClick={() => setSelectedCategory("all")}
             >
-              All Products ({products.length})
+              All Products
             </button>
-            {uniqueCategories.map((cat) => (
+            {["Electronics", "Fashion", "Home", "Books"].map((cat) => (
               <button
+                type="button"
                 key={cat}
                 className={`${styles.filterChip} ${
                   selectedCategory.toLowerCase() === cat.toLowerCase()
@@ -293,13 +330,11 @@ const Home = () => {
                 }`}
                 onClick={() => setSelectedCategory(cat)}
               >
-                {cat} (
-                {products.filter((p) => p.category?.toLowerCase() === cat.toLowerCase()).length}
-                )
+                {cat}
               </button>
             ))}
           </div>
-        </div>
+        </form>
 
         {/* Featured Showcase Carousel */}
         {products.length > 0 && selectedCategory === "all" && !searchTerm && (
@@ -338,10 +373,31 @@ const Home = () => {
               <div className={styles.spinner} />
               <p>Loading live products...</p>
             </div>
-          ) : filteredProducts.length > 0 ? (
-            <div className={styles.productGrid}>
-              {filteredProducts.map((product) => renderProductCard(product))}
-            </div>
+          ) : products.length > 0 ? (
+            <>
+              <div className={styles.productGrid}>
+                {products.map((product) => renderProductCard(product))}
+              </div>
+              {totalPages > 1 && (
+                <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginTop: "30px" }}>
+                  <button
+                    disabled={page === 0}
+                    onClick={() => setPage((p) => Math.max(0, p - 1))}
+                    style={{ padding: "8px 16px", borderRadius: "6px", cursor: page === 0 ? "not-allowed" : "pointer" }}
+                  >
+                    Previous
+                  </button>
+                  <span style={{ alignSelf: "center" }}>Page {page + 1} of {totalPages}</span>
+                  <button
+                    disabled={page >= totalPages - 1}
+                    onClick={() => setPage((p) => p + 1)}
+                    style={{ padding: "8px 16px", borderRadius: "6px", cursor: page >= totalPages - 1 ? "not-allowed" : "pointer" }}
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
+            </>
           ) : (
             <div className={styles.emptyState}>
               <FiShoppingBag className={styles.emptyIcon} />
@@ -352,6 +408,7 @@ const Home = () => {
                 onClick={() => {
                   setSearchTerm("");
                   setSelectedCategory("all");
+                  fetchProducts(0, "", "all");
                 }}
               >
                 Reset Filters
@@ -402,4 +459,3 @@ const Home = () => {
 };
 
 export default Home;
-

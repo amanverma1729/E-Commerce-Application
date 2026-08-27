@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import styles from "./admindashboard.module.css";
@@ -16,6 +15,7 @@ import {
   FiPhone,
   FiUsers,
 } from "react-icons/fi";
+import apiClient from "../api/apiClient";
 
 const AdminDashboard = () => {
   const [productOwners, setProductOwners] = useState([]);
@@ -26,15 +26,14 @@ const AdminDashboard = () => {
 
   const fetchProductOwners = async () => {
     try {
-      const { data } = await axios.get(
-        "http://localhost:9090/product-owners/all"
-      );
-      if (Array.isArray(data)) {
-        setProductOwners(data);
-      } else if (data.owners) {
-        setProductOwners(data.owners);
+      const { data } = await apiClient.get("/api/v1/sellers");
+      const resData = data.data || data;
+      if (Array.isArray(resData)) {
+        setProductOwners(resData);
+      } else if (resData.owners) {
+        setProductOwners(resData.owners);
       } else {
-        toast.error("Unexpected API response format.");
+        setProductOwners([]);
       }
     } catch (error) {
       console.error("Error fetching product owners:", error);
@@ -54,10 +53,11 @@ const AdminDashboard = () => {
       return;
     }
     try {
-      const { data } = await axios.get(
-        `http://localhost:9090/products/owner/${ownerId}`
+      const { data } = await apiClient.get(
+        `/api/v1/products/owner/${ownerId}`
       );
-      setProducts((prev) => ({ ...prev, [ownerId]: data }));
+      const resData = data.data || data;
+      setProducts((prev) => ({ ...prev, [ownerId]: Array.isArray(resData) ? resData : [] }));
       setExpandedOwners((prev) => ({ ...prev, [ownerId]: true }));
     } catch (error) {
       console.error(`Error fetching products for owner ${ownerId}:`, error);
@@ -67,7 +67,7 @@ const AdminDashboard = () => {
 
   const approveProduct = async (productId) => {
     try {
-      await axios.put(`http://localhost:9090/products/${productId}/approve`);
+      await apiClient.put(`/api/v1/products/${productId}/approve`);
       toast.success("Product approved successfully!");
       setProducts((prev) => {
         const updatedProducts = { ...prev };
@@ -86,7 +86,7 @@ const AdminDashboard = () => {
 
   const deleteProduct = async (productId) => {
     try {
-      await axios.delete(`http://localhost:9090/products/${productId}`);
+      await apiClient.delete(`/api/v1/products/${productId}`);
       toast.success("Product rejected and removed!");
       setProducts((prev) => {
         const updatedProducts = { ...prev };
@@ -265,4 +265,3 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
-

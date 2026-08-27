@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import styles from "./signup.module.css";
-import axios from "axios";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import apiClient from "../api/apiClient";
 
 const SignupProductOwner = () => {
   const [signupuser, setSignupuser] = useState({
@@ -38,17 +38,9 @@ const SignupProductOwner = () => {
       productOwnerNumber: Number(signupuser.productOwnerNumber),
     };
 
-    // Log the payload for debugging
-    console.log("Signup Payload:", signupData);
-
     try {
-      await axios.post(
-        "http://localhost:9090/product-owners/register",
-        signupData,
-        { headers: { "Content-Type": "application/json" } }
-      );
-      toast.success("Signup successful!");
-      // Clear form data after signup
+      await apiClient.post("/api/v1/auth/seller/register", signupData);
+      toast.success("Seller registration successful!");
       setSignupuser({
         productOwnerName: "",
         productOwnerEmail: "",
@@ -58,10 +50,9 @@ const SignupProductOwner = () => {
       });
       navigate("/login");
     } catch (error) {
-      console.error("Error during signup:", error);
-      toast.error(
-        "Signup failed: " + (error.response?.data || "Something went wrong")
-      );
+      console.error("Error during seller signup:", error);
+      const msg = error.response?.data?.message || "Signup failed";
+      toast.error("Signup failed: " + msg);
     }
   };
 

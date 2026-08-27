@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
-import styles from "./orderHistory.module.css";
+import styles from "./orderhistory.module.css";
 import toast from "react-hot-toast";
+import apiClient from "../api/apiClient";
 
 const OrderHistory = () => {
   const [orders, setOrders] = useState([]);
-  // Assume userID is stored in sessionStorage after login
-  const userID = sessionStorage.getItem("userID");
+  const userID = sessionStorage.getItem("userID") || localStorage.getItem("userID");
 
   useEffect(() => {
     if (userID) {
-      axios
-        .get(`http://localhost:9090/orders/user/${userID}`)
+      apiClient
+        .get(`/api/v1/orders/user/${userID}`)
         .then((res) => {
-          setOrders(res.data);
+          const data = res.data?.data || res.data;
+          setOrders(Array.isArray(data) ? data : []);
         })
         .catch((err) => {
           console.error("Error fetching orders:", err);
@@ -33,17 +33,17 @@ const OrderHistory = () => {
             <div key={order.id} className={styles.orderCard}>
               <h3>Order #{order.id}</h3>
               <p>
-                <strong>Product:</strong> {order.product.name}
+                <strong>Product:</strong> {order.product?.name || order.productNameAtPurchase || "Product"}
               </p>
               <p>
-                <strong>Price:</strong> ₹{order.product.price}
+                <strong>Price:</strong> ₹{order.product?.price || order.totalPrice}
               </p>
               <p>
                 <strong>Status:</strong> {order.status}
               </p>
               <p>
                 <strong>Order Date:</strong>{" "}
-                {new Date(order.orderDate).toLocaleString()}
+                {order.orderDate ? new Date(order.orderDate).toLocaleString() : "N/A"}
               </p>
             </div>
           ))}

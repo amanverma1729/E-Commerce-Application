@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import styles from "./signup.module.css"; // Reusing the signup styles
-import axios from "axios";
+import styles from "./signup.module.css";
 import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
+import apiClient from "../api/apiClient";
 
 const EditOwner = () => {
-  const { id } = useParams(); // ✅ Fixed: Changed 'ownerID' to 'id'
+  const { id } = useParams();
   const navigate = useNavigate();
   const [ownerDetails, setOwnerDetails] = useState({
     productOwnerName: "",
@@ -16,14 +16,14 @@ const EditOwner = () => {
 
   useEffect(() => {
     if (id) {
-      axios
-        .get(`http://localhost:9090/product-owners/${id}`)
+      apiClient
+        .get(`/api/v1/sellers/${id}`)
         .then((res) => {
-          console.log("Fetched Data:", res.data);
-          if (res.data) {
+          const data = res.data?.data || res.data;
+          if (data) {
             setOwnerDetails((prev) => ({
-              ...prev, // Preserve existing state
-              ...res.data, // Merge new data
+              ...prev,
+              ...data,
             }));
           }
         })
@@ -44,12 +44,11 @@ const EditOwner = () => {
 
   const updateOwner = (e) => {
     e.preventDefault();
-    console.log("Updating owner with ID:", id, ownerDetails); // ✅ Debugging log
-    axios
-      .put(`http://localhost:9090/product-owners/update/${id}`, ownerDetails) // ✅ Fixed API URL
+    apiClient
+      .put(`/api/v1/sellers/${id}`, ownerDetails)
       .then(() => {
         toast.success("Product owner updated successfully!");
-        navigate("/admindashboard", { replace: true }); // ✅ Fixed redirect path
+        navigate("/admindashboard", { replace: true });
       })
       .catch((err) => {
         console.error("Error updating product owner:", err);
@@ -60,7 +59,7 @@ const EditOwner = () => {
   return (
     <div className={styles.container}>
       <div className={styles.formWrapper}>
-        <h1>Edit Product Owner {id}</h1>
+        <h1>Edit Product Owner #{id}</h1>
         <form onSubmit={updateOwner}>
           <div className={styles.inputGroup}>
             <label htmlFor="productOwnerName">Name</label>

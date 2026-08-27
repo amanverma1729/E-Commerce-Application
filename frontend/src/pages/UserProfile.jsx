@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import styles from "./userprofile.module.css";
 import { useNavigate } from "react-router-dom";
 import {
@@ -10,11 +9,11 @@ import {
   FiShoppingCart,
   FiPackage,
   FiShield,
-  FiClock,
 } from "react-icons/fi";
+import apiClient from "../api/apiClient";
 
 const UserProfile = () => {
-  const userID = sessionStorage.getItem("userID");
+  const userID = sessionStorage.getItem("userID") || localStorage.getItem("userID");
   const navigate = useNavigate();
   const [userDetails, setUserDetails] = useState({
     name: "",
@@ -25,13 +24,20 @@ const UserProfile = () => {
 
   useEffect(() => {
     if (userID) {
-      axios
-        .get(`http://localhost:9090/users/id/${userID}`)
+      apiClient
+        .get(`/api/v1/users/${userID}`)
         .then((res) => {
-          setUserDetails(res.data);
+          const data = res.data?.data || res.data;
+          setUserDetails(data);
         })
         .catch((err) => {
-          console.error("Error fetching user details:", err);
+          // Fallback check
+          apiClient.get(`/api/v1/users/id/${userID}`)
+            .then((res) => {
+              const data = res.data?.data || res.data;
+              setUserDetails(data);
+            })
+            .catch((e) => console.error("Error fetching user details:", e));
         });
     }
   }, [userID]);
@@ -104,7 +110,7 @@ const UserProfile = () => {
           </div>
         </div>
 
-        {/* User Details Details Card */}
+        {/* User Details Overview Card */}
         <div className={styles.detailsCard}>
           <h2 className={styles.sectionTitle}>Account Details Overview</h2>
 
@@ -133,4 +139,3 @@ const UserProfile = () => {
 };
 
 export default UserProfile;
-

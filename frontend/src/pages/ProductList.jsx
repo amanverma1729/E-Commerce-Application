@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import styles from "./productList.module.css";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
@@ -13,28 +12,41 @@ import {
   FiClock,
   FiPackage,
 } from "react-icons/fi";
+import apiClient from "../api/apiClient";
 
 const ProductList = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const productOwnerId = Number(sessionStorage.getItem("productOwnerId"));
+  const productOwnerId = Number(sessionStorage.getItem("productOwnerId") || localStorage.getItem("productOwnerId"));
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios
-      .get("http://localhost:9090/products")
+    if (!productOwnerId) {
+      setLoading(false);
+      return;
+    }
+    apiClient
+      .get(`/api/v1/products/owner/${productOwnerId}`)
       .then((res) => {
-        const ownerProducts = res.data.filter(
-          (prod) =>
-            prod.productOwner &&
-            (prod.productOwner.productOwnerId || prod.productOwner.id) ===
-              productOwnerId
-        );
-        setProducts(ownerProducts);
+        const data = res.data?.data || res.data;
+        setProducts(Array.isArray(data) ? data : []);
       })
       .catch((err) => {
-        console.error("Error fetching products:", err);
-        toast.error("Error fetching products");
+        // Fallback fetch all and filter
+        apiClient.get("/api/v1/products")
+          .then((res) => {
+            const data = res.data?.data?.content || res.data?.data || res.data || [];
+            const ownerProducts = data.filter(
+              (prod) =>
+                prod.productOwner &&
+                (prod.productOwner.productOwnerId || prod.productOwner.id) === productOwnerId
+            );
+            setProducts(ownerProducts);
+          })
+          .catch((e) => {
+            console.error("Error fetching products:", e);
+            toast.error("Error fetching products");
+          });
       })
       .finally(() => {
         setLoading(false);
@@ -43,8 +55,8 @@ const ProductList = () => {
 
   const handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
-      axios
-        .delete(`http://localhost:9090/products/${id}`)
+      apiClient
+        .delete(`/api/v1/products/${id}`)
         .then(() => {
           toast.success("Product deleted successfully");
           setProducts((prev) => prev.filter((prod) => prod.id !== id));
@@ -222,4 +234,3 @@ const ProductList = () => {
 };
 
 export default ProductList;
-
