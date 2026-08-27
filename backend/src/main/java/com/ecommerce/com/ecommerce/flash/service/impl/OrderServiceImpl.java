@@ -89,11 +89,16 @@ public class OrderServiceImpl implements OrderService {
     public OrderResponse checkout(CheckoutRequest request) {
         User user = getAuthenticatedUser();
         String idempotencyKey = request.getIdempotencyKey();
+        String requestHash = String.valueOf((request.getShippingAddress() + "|" + request.getPaymentMethod()).hashCode());
 
         if (idempotencyKey != null && !idempotencyKey.trim().isEmpty()) {
             Optional<IdempotencyRecord> recordOpt = idempotencyRecordRepository.findByUserIdAndIdempotencyKey(user.getId(), idempotencyKey);
             if (recordOpt.isPresent()) {
-                return mapToResponse(recordOpt.get().getOrder());
+                IdempotencyRecord existingRecord = recordOpt.get();
+                if (existingRecord.getRequestHash() != null && !existingRecord.getRequestHash().equals(requestHash)) {
+                    throw new BadRequestException("Idempotency key reuse with a different request payload is invalid.");
+                }
+                return mapToResponse(existingRecord.getOrder());
             }
         }
 
@@ -181,6 +186,7 @@ public class OrderServiceImpl implements OrderService {
             record.setIdempotencyKey(idempotencyKey);
             record.setUser(user);
             record.setOrder(savedOrder);
+            record.setRequestHash(requestHash);
             idempotencyRecordRepository.save(record);
         }
 

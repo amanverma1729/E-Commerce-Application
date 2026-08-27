@@ -227,6 +227,7 @@ class OrderServiceTest {
     void testCheckout_IdempotentDuplicate_ReturnsExistingOrder() {
         CheckoutRequest request = CheckoutRequest.builder()
                 .shippingAddress("123 Street")
+                .paymentMethod("CARD")
                 .idempotencyKey("SAME-KEY")
                 .build();
 
@@ -236,7 +237,8 @@ class OrderServiceTest {
         existingOrder.setTotalPrice(100.0);
         existingOrder.setStatus("CONFIRMED");
 
-        IdempotencyRecord record = new IdempotencyRecord(1L, "SAME-KEY", user, existingOrder, null, null);
+        String hash = String.valueOf(("123 Street|CARD").hashCode());
+        IdempotencyRecord record = new IdempotencyRecord(1L, "SAME-KEY", user, existingOrder, hash, null);
 
         when(userRepository.findById(10L)).thenReturn(Optional.of(user));
         when(idempotencyRecordRepository.findByUserIdAndIdempotencyKey(10L, "SAME-KEY")).thenReturn(Optional.of(record));
@@ -245,6 +247,27 @@ class OrderServiceTest {
 
         assertNotNull(response);
         assertEquals(500L, response.getId());
+    }
+
+    @Test
+    void testCheckout_IdempotentDifferentPayload_ThrowsException() {
+        CheckoutRequest request = CheckoutRequest.builder()
+                .shippingAddress("DIFFERENT ADDRESS")
+                .paymentMethod("CARD")
+                .idempotencyKey("SAME-KEY")
+                .build();
+
+        Order existingOrder = new Order();
+        existingOrder.setId(500L);
+        existingOrder.setUser(user);
+
+        String originalHash = String.valueOf(("123 Street|CARD").hashCode());
+        IdempotencyRecord record = new IdempotencyRecord(1L, "SAME-KEY", user, existingOrder, originalHash, null);
+
+        when(userRepository.findById(10L)).thenReturn(Optional.of(user));
+        when(idempotencyRecordRepository.findByUserIdAndIdempotencyKey(10L, "SAME-KEY")).thenReturn(Optional.of(record));
+
+        assertThrows(com.ecommerce.com.ecommerce.flash.exception.BadRequestException.class, () -> orderService.checkout(request));
     }
 
     @Test
