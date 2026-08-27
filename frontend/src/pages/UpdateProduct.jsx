@@ -5,45 +5,41 @@ import styles from "./updateproduct.module.css";
 import apiClient from "../api/apiClient";
 
 const categoryOptions = {
+  Electronics: {
+    sizes: ["Standard", "Compact", "Pro", "Ultra"],
+    colors: ["black", "silver", "white", "spacegrey"],
+  },
+  Fashion: {
+    sizes: ["S", "M", "L", "XL", "XXL"],
+    colors: ["black", "white", "blue", "grey", "red", "brown"],
+  },
+  Home: {
+    sizes: ["Standard", "Large", "King", "Queen"],
+    colors: ["white", "grey", "beige", "black"],
+  },
+  Footwear: {
+    sizes: ["UK 7", "UK 8", "UK 9", "UK 10", "UK 11"],
+    colors: ["black", "white", "blue", "red", "grey", "brown"],
+  },
+  Beauty: {
+    sizes: ["30ml", "50ml", "100ml", "Standard"],
+    colors: ["amber", "clear", "golden", "ruby"],
+  },
+  Sports: {
+    sizes: ["Standard", "6mm", "8mm", "Medium", "Large"],
+    colors: ["black", "blue", "teal", "red", "yellow"],
+  },
   Shoes: {
     sizes: ["8", "9", "10", "11"],
     colors: ["black", "white", "blue"],
   },
   "T-shirt": {
     sizes: ["S", "M", "L", "XL", "XXL"],
-    colors: [
-      "white",
-      "black",
-      "blue",
-      "orange",
-      "green",
-      "pink",
-      "brown",
-      "purple",
-      "beige",
-    ],
+    colors: ["white", "black", "blue", "orange", "green", "pink", "brown", "purple", "beige"],
   },
   Jeans: {
     sizes: ["34", "36", "38", "40", "42", "44", "46"],
     colors: ["blue", "black", "white", "beige"],
-  },
-  Boots: {
-    sizes: ["8", "9", "10", "11"],
-    colors: ["brown", "black", "darkbrown"],
-  },
-  Shirts: {
-    sizes: ["S", "M", "L", "XL", "XXL"],
-    colors: [
-      "white",
-      "black",
-      "blue",
-      "orange",
-      "green",
-      "pink",
-      "brown",
-      "purple",
-      "beige",
-    ],
   },
 };
 
@@ -55,7 +51,7 @@ const UpdateProduct = () => {
     description: "",
     price: 0,
     stock: 0,
-    category: "Shoes",
+    category: "Electronics",
     productSizes: [],
     productColors: [],
     productImage: "",
@@ -71,7 +67,7 @@ const UpdateProduct = () => {
           description: productData.description || "",
           price: productData.price || 0,
           stock: productData.stock || 0,
-          category: productData.category || "Shoes",
+          category: productData.category || "Electronics",
           productSizes: productData.productSizes || [],
           productColors: productData.productColors || [],
           productImage: productData.productImage || "",
@@ -85,6 +81,8 @@ const UpdateProduct = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    if (name === "price" && value !== "" && parseFloat(value) < 0) return;
+    if (name === "stock" && value !== "" && parseInt(value, 10) < 0) return;
     setEditProduct({ ...editProduct, [name]: value });
   };
 
@@ -111,6 +109,15 @@ const UpdateProduct = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (parseFloat(editProduct.price) <= 0) {
+      toast.error("Price must be greater than ₹0");
+      return;
+    }
+    if (parseInt(editProduct.stock, 10) < 0) {
+      toast.error("Stock quantity cannot be negative");
+      return;
+    }
+
     try {
       await apiClient.put(`/api/v1/products/${id}`, editProduct);
       toast.success("Product updated successfully");
@@ -144,20 +151,23 @@ const UpdateProduct = () => {
           required
         />
 
-        <label className={styles.label}>Price</label>
+        <label className={styles.label}>Price (₹)</label>
         <input
           type="number"
           name="price"
+          min="0"
+          step="0.01"
           value={editProduct.price}
           onChange={handleChange}
           className={styles.input}
           required
         />
 
-        <label className={styles.label}>Stock</label>
+        <label className={styles.label}>Stock Quantity</label>
         <input
           type="number"
           name="stock"
+          min="0"
           value={editProduct.stock}
           onChange={handleChange}
           className={styles.input}
@@ -181,7 +191,7 @@ const UpdateProduct = () => {
         <label className={styles.label}>Sizes</label>
         <input
           type="text"
-          value={editProduct.productSizes.join(", ")}
+          value={Array.isArray(editProduct.productSizes) ? editProduct.productSizes.join(", ") : ""}
           readOnly
           className={styles.input}
         />
@@ -189,7 +199,7 @@ const UpdateProduct = () => {
         <label className={styles.label}>Colors</label>
         <input
           type="text"
-          value={editProduct.productColors.join(", ")}
+          value={Array.isArray(editProduct.productColors) ? editProduct.productColors.join(", ") : ""}
           readOnly
           className={styles.input}
         />

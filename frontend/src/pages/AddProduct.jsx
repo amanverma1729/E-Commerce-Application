@@ -21,7 +21,7 @@ const AddProduct = () => {
     description: "",
     price: "",
     stock: "",
-    category: "Shoes",
+    category: "Electronics",
     size: "",
     color: "",
   });
@@ -62,6 +62,16 @@ const AddProduct = () => {
       return;
     }
 
+    if (parseFloat(product.price) <= 0) {
+      toast.error("Product price must be greater than ₹0");
+      return;
+    }
+
+    if (parseInt(product.stock) < 0) {
+      toast.error("Stock quantity cannot be negative");
+      return;
+    }
+
     setLoading(true);
 
     const formData = new FormData();
@@ -96,45 +106,37 @@ const AddProduct = () => {
   };
 
   const options = {
+    Electronics: {
+      sizes: ["Standard", "Pro Bundle", "128GB", "256GB", "512GB"],
+      colors: ["black", "silver", "blue", "grey", "white"],
+    },
+    Fashion: {
+      sizes: ["S", "M", "L", "XL", "XXL"],
+      colors: ["black", "white", "blue", "green", "beige", "red"],
+    },
+    Home: {
+      sizes: ["Standard", "Compact", "Large"],
+      colors: ["white", "black", "grey", "silver", "yellow"],
+    },
+    Footwear: {
+      sizes: ["UK 7", "UK 8", "UK 9", "UK 10", "UK 11"],
+      colors: ["black", "white", "blue", "red", "grey", "brown"],
+    },
+    Beauty: {
+      sizes: ["30ml", "50ml", "100ml", "Standard"],
+      colors: ["amber", "clear", "golden", "ruby"],
+    },
+    Sports: {
+      sizes: ["Standard", "6mm", "8mm", "Medium", "Large"],
+      colors: ["black", "blue", "teal", "red", "yellow"],
+    },
     Shoes: {
       sizes: ["8", "9", "10", "11"],
       colors: ["black", "white", "blue"],
     },
     "T-shirt": {
       sizes: ["S", "M", "L", "XL", "XXL"],
-      colors: [
-        "white",
-        "black",
-        "blue",
-        "orange",
-        "green",
-        "pink",
-        "brown",
-        "purple",
-        "beige",
-      ],
-    },
-    Jeans: {
-      sizes: ["34", "36", "38", "40", "42", "44", "46"],
-      colors: ["blue", "black", "white", "beige"],
-    },
-    Boots: {
-      sizes: ["8", "9", "10", "11"],
-      colors: ["brown", "black", "darkbrown"],
-    },
-    Shirts: {
-      sizes: ["S", "M", "L", "XL", "XXL"],
-      colors: [
-        "white",
-        "black",
-        "blue",
-        "orange",
-        "green",
-        "pink",
-        "brown",
-        "purple",
-        "beige",
-      ],
+      colors: ["white", "black", "blue", "green"],
     },
   };
 
@@ -200,6 +202,8 @@ const AddProduct = () => {
                 <input
                   type="number"
                   name="price"
+                  min="0"
+                  step="0.01"
                   placeholder="2499"
                   value={product.price}
                   onChange={handleChange}
@@ -211,6 +215,7 @@ const AddProduct = () => {
                 <input
                   type="number"
                   name="stock"
+                  min="0"
                   placeholder="50"
                   value={product.stock}
                   onChange={handleChange}
@@ -234,11 +239,14 @@ const AddProduct = () => {
                   className={styles.selectInput}
                   required
                 >
+                  <option value="Electronics">Electronics</option>
+                  <option value="Fashion">Fashion</option>
+                  <option value="Home">Home</option>
+                  <option value="Footwear">Footwear</option>
+                  <option value="Beauty">Beauty</option>
+                  <option value="Sports">Sports</option>
                   <option value="Shoes">Shoes</option>
                   <option value="T-shirt">T-shirt</option>
-                  <option value="Jeans">Jeans</option>
-                  <option value="Boots">Boots</option>
-                  <option value="Shirts">Shirts</option>
                 </select>
               </div>
 

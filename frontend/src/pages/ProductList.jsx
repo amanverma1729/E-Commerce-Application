@@ -13,6 +13,7 @@ import {
   FiPackage,
 } from "react-icons/fi";
 import apiClient from "../api/apiClient";
+import { getRelevantProductImage } from "../utils/productImages";
 
 const ProductList = () => {
   const [products, setProducts] = useState([]);
@@ -170,17 +171,11 @@ const ProductList = () => {
                   <tr key={prod.id}>
                     <td>
                       <div className={styles.productCell}>
-                        {prod.productImageBase64 ? (
-                          <img
-                            src={`data:image/jpeg;base64,${prod.productImageBase64}`}
-                            alt={prod.name}
-                            className={styles.thumbImage}
-                          />
-                        ) : (
-                          <div className={styles.thumbPlaceholder}>
-                            <FiPackage />
-                          </div>
-                        )}
+                        <img
+                          src={getRelevantProductImage(prod)}
+                          alt={prod.name}
+                          className={styles.thumbImage}
+                        />
                         <span className={styles.productName}>{prod.name}</span>
                       </div>
                     </td>

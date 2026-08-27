@@ -1,204 +1,202 @@
-import React, { useState, useEffect } from "react";
-import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
-import styles from "./cart.module.css";
-import {
-  FiShoppingCart,
-  FiTrash2,
-  FiZap,
-  FiShoppingBag,
-  FiShield,
-  FiUser,
-  FiPackage,
+import React from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { 
+  FiShoppingBag, 
+  FiTrash2, 
+  FiArrowRight, 
+  FiShield, 
+  FiTruck, 
+  FiArrowLeft,
+  FiZap
 } from "react-icons/fi";
-import apiClient from "../api/apiClient";
+import { useCart } from "../context/CartContext";
+import { getRelevantProductImage } from "../utils/productImages";
+import styles from "./cartpage.module.css";
 
 const CartPage = () => {
   const navigate = useNavigate();
-  const userID = sessionStorage.getItem("userID") || localStorage.getItem("userID");
-  const [cartItems, setCartItems] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { 
+    cartItems, 
+    cartCount, 
+    subtotal, 
+    grandTotal, 
+    loading, 
+    error, 
+    updateQuantity, 
+    removeFromCart, 
+    clearCart 
+  } = useCart();
 
-  useEffect(() => {
-    if (!userID) {
-      toast.error("User not logged in");
-      setLoading(false);
-      return;
-    }
-    apiClient
-      .get(`/api/v1/cart/user/${userID}`)
-      .then((res) => {
-        const data = res.data?.data || res.data;
-        if (data && Array.isArray(data.items)) {
-          setCartItems(data.items);
-        } else if (Array.isArray(data)) {
-          setCartItems(data);
-        } else {
-          setCartItems([]);
-        }
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Error fetching cart items:", err);
-        toast.error("Error fetching cart items");
-        setLoading(false);
-      });
-  }, [userID]);
-
-  const handleRemoveItem = async (orderId) => {
-    try {
-      await apiClient.delete(`/api/v1/cart/${orderId}`);
-      toast.success("Item removed from cart");
-      setCartItems(cartItems.filter((item) => item.id !== orderId));
-    } catch (error) {
-      console.error("Error removing item:", error);
-      toast.error("Failed to remove item");
-    }
-  };
-
-  const handleBuyNow = (orderId) => {
-    navigate(`/payment/${orderId}`);
-  };
-
-  const subtotal = cartItems.reduce((acc, item) => acc + (item.product?.price || 0) * (item.quantity || 1), 0);
-  const estTax = Math.round(subtotal * 0.05);
-  const grandTotal = subtotal + estTax;
-
-  if (loading) {
+  if (loading && cartItems.length === 0) {
     return (
       <div className={styles.loadingWrapper}>
         <div className={styles.spinner} />
-        <p>Retrieving your cart...</p>
+        <p>Loading Cart Items...</p>
       </div>
     );
   }
 
+  if (!cartItems || cartItems.length === 0) {
+    return (
+      <div className={styles.pageWrapper}>
+        <div className={styles.emptyCard}>
+          <div className={styles.emptyIconBadge}>
+            <FiShoppingBag />
+          </div>
+          <h2 className={styles.emptyTitle}>Your Bag is Empty</h2>
+          <p className={styles.emptySubtitle}>
+            Looks like you haven't added any products to your cart yet. Explore our latest arrivals!
+          </p>
+          <Link to="/" className="btn-primary" style={{ marginTop: "12px" }}>
+            Explore Catalog <FiArrowRight />
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const freeShippingThreshold = 999;
+  const amountForFreeShipping = Math.max(0, freeShippingThreshold - subtotal);
+  const isFreeShipping = amountForFreeShipping === 0;
+
   return (
-    <div className={styles.cartWrapper}>
-      <div className={styles.cartContainer}>
-        {/* Navigation Shortcut Header */}
-        <div className={styles.navHeader}>
-          <button
-            className={styles.shortcutBtn}
-            onClick={() => navigate("/userprofile")}
-          >
-            <FiUser /> Profile
-          </button>
-          <button
-            className={styles.shortcutBtn}
-            onClick={() => navigate(`/orderpage/${userID}`)}
-          >
-            <FiPackage /> Orders History
-          </button>
-        </div>
+    <div className={styles.pageWrapper}>
+      {/* Navigation Header */}
+      <div className={styles.navRow}>
+        <button onClick={() => navigate(-1)} className={styles.backBtn}>
+          <FiArrowLeft /> Continue Shopping
+        </button>
+        <button onClick={clearCart} className={styles.clearBtn}>
+          <FiTrash2 /> Empty Cart
+        </button>
+      </div>
 
-        <div className={styles.cartHeader}>
-          <div className={styles.titleGroup}>
-            <div className={styles.iconBadge}>
-              <FiShoppingCart />
-            </div>
+      {/* Cart Layout Grid */}
+      <div className={styles.cartGrid}>
+        {/* Left Column: Items List */}
+        <div className={styles.itemsColumn}>
+          <div className={styles.sectionHeader}>
+            <h1 className={styles.pageTitle}>Shopping Bag ({cartCount} Items)</h1>
+          </div>
+
+          {/* Free Delivery Banner */}
+          <div className={styles.deliveryBanner}>
+            <FiTruck className={styles.bannerIcon} />
             <div>
-              <h1 className={styles.cartTitle}>Shopping Cart</h1>
-              <p className={styles.cartSubtitle}>
-                {cartItems.length} {cartItems.length === 1 ? "item" : "items"} in your cart
-              </p>
+              {isFreeShipping ? (
+                <p className={styles.bannerTextSuccess}>
+                  🎉 Congratulations! You have unlocked <strong>Free Express Shipping</strong>!
+                </p>
+              ) : (
+                <p className={styles.bannerText}>
+                  Add <strong>₹{amountForFreeShipping.toLocaleString()}</strong> more to unlock <strong>Free Express Delivery</strong>.
+                </p>
+              )}
             </div>
           </div>
-        </div>
 
-        {cartItems.length === 0 ? (
-          <div className={styles.emptyCart}>
-            <FiShoppingBag className={styles.emptyIcon} />
-            <h2>Your cart is currently empty</h2>
-            <p>Explore our trending catalog and add authentic products to your cart.</p>
-            <button className={styles.shopBtn} onClick={() => navigate("/")}>
-              Explore Store
-            </button>
-          </div>
-        ) : (
-          <div className={styles.cartLayout}>
-            {/* Cart Items List */}
-            <div className={styles.itemsList}>
-              {cartItems.map((item) => (
-                <div key={item.id} className={styles.cartCard}>
+          <div className={styles.itemsList}>
+            {cartItems.map((item) => {
+              const itemProduct = item.product || {};
+              const itemId = item.id;
+              const quantity = item.quantity || 1;
+              const itemPrice = item.price || itemProduct.price || 0;
+              const itemTotal = item.totalPrice || itemPrice * quantity;
+
+              const getImageSrc = () => getRelevantProductImage(itemProduct);
+
+              return (
+                <div key={itemId} className={styles.cartCard}>
                   <div className={styles.itemImageWrapper}>
-                    {item.product?.productImageBase64 ? (
-                      <img
-                        src={`data:image/jpeg;base64,${item.product.productImageBase64}`}
-                        alt={item.product?.name}
-                      />
-                    ) : (
-                      <div className={styles.placeholderImg}>
-                        <FiShoppingBag />
-                      </div>
-                    )}
+                    <img
+                      src={getImageSrc()}
+                      alt={itemProduct.name || "Product Item"}
+                    />
                   </div>
 
-                  <div className={styles.itemDetails}>
+                  <div className={styles.itemMeta}>
                     <span className={styles.categoryBadge}>
-                      {item.product?.category || "Product"}
+                      {itemProduct.category || "General"}
                     </span>
-                    <h3 className={styles.itemTitle}>{item.product?.name}</h3>
-                    <p className={styles.itemRef}>Order Reference: #{item.id}</p>
-
-                    <div className={styles.itemPriceRow}>
-                      <span className={styles.priceValue}>₹{item.product?.price}</span>
-                      <span className={styles.qtyText}>Qty: {item.quantity || 1}</span>
-                    </div>
+                    <Link to={`/product/${itemProduct.id || item.productId}`} className={styles.itemTitleLink}>
+                      <h3 className={styles.itemTitle}>{itemProduct.name || `Item #${item.productId}`}</h3>
+                    </Link>
+                    <span className={styles.itemPriceSingle}>₹{itemPrice.toLocaleString()} per unit</span>
                   </div>
 
                   <div className={styles.itemActions}>
-                    <button
-                      className={styles.checkoutBtn}
-                      onClick={() => handleBuyNow(item.id)}
-                    >
-                      <FiZap /> Checkout Item
-                    </button>
-                    <button
-                      className={styles.removeBtn}
-                      onClick={() => handleRemoveItem(item.id)}
-                      title="Remove from Cart"
-                    >
-                      <FiTrash2 /> Remove
-                    </button>
+                    <div className={styles.stepper}>
+                      <button
+                        onClick={() => updateQuantity(itemId, quantity - 1)}
+                        disabled={quantity <= 1}
+                      >
+                        -
+                      </button>
+                      <span>{quantity}</span>
+                      <button onClick={() => updateQuantity(itemId, quantity + 1)}>+</button>
+                    </div>
+
+                    <div className={styles.itemSubtotalBox}>
+                      <span className={styles.itemTotalAmount}>₹{itemTotal.toLocaleString()}</span>
+                      <button
+                        onClick={() => removeFromCart(itemId)}
+                        className={styles.removeBtn}
+                        title="Remove item"
+                      >
+                        <FiTrash2 /> Remove
+                      </button>
+                    </div>
                   </div>
                 </div>
-              ))}
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Right Column: Order Summary Sidebar */}
+        <div className={styles.summarySidebar}>
+          <div className={styles.summaryCard}>
+            <h2 className={styles.summaryTitle}>Order Summary</h2>
+
+            <div className={styles.summaryRows}>
+              <div className={styles.summaryRow}>
+                <span>Subtotal ({cartCount} items)</span>
+                <span className={styles.rowVal}>₹{subtotal.toLocaleString()}</span>
+              </div>
+              <div className={styles.summaryRow}>
+                <span>Estimated Express Shipping</span>
+                <span className={styles.rowVal}>
+                  {isFreeShipping ? <strong style={{ color: "var(--color-success)" }}>FREE</strong> : "₹99"}
+                </span>
+              </div>
+              <div className={styles.summaryRow}>
+                <span>GST Tax & Handling</span>
+                <span className={styles.rowVal}>Included</span>
+              </div>
             </div>
 
-            {/* Order Summary Sidebar */}
-            <div className={styles.summarySidebar}>
-              <h2 className={styles.summaryTitle}>Order Summary</h2>
-              
-              <div className={styles.summaryRows}>
-                <div className={styles.summaryRow}>
-                  <span>Subtotal ({cartItems.length} items)</span>
-                  <span>₹{subtotal}</span>
-                </div>
-                <div className={styles.summaryRow}>
-                  <span>Est. GST / Taxes (5%)</span>
-                  <span>₹{estTax}</span>
-                </div>
-                <div className={styles.summaryRow}>
-                  <span>Shipping Standard</span>
-                  <span className={styles.freeText}>FREE</span>
-                </div>
-              </div>
+            <div className={styles.divider} />
 
-              <div className={styles.totalDivider} />
+            <div className={styles.totalRow}>
+              <span>Grand Total</span>
+              <span className={styles.grandTotalVal}>
+                ₹{(isFreeShipping ? subtotal : subtotal + 99).toLocaleString()}
+              </span>
+            </div>
 
-              <div className={styles.totalRow}>
-                <span>Total Amount</span>
-                <span className={styles.grandTotalValue}>₹{grandTotal}</span>
-              </div>
+            <button
+              onClick={() => navigate("/checkout")}
+              className={styles.checkoutBtn}
+            >
+              Proceed to Checkout <FiArrowRight />
+            </button>
 
-              <div className={styles.trustBanner}>
-                <FiShield className={styles.shieldIcon} />
-                <span>Encrypted 256-Bit SSL Payment Gateway</span>
-              </div>
+            <div className={styles.trustFooter}>
+              <FiShield className={styles.trustShieldIcon} />
+              <span>256-bit Bank-Grade SSL Secure Checkout</span>
             </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

@@ -33,12 +33,14 @@ public class ProductSpecification {
                 predicates.add(criteriaBuilder.equal(criteriaBuilder.lower(root.get("category")), category.trim().toLowerCase()));
             }
 
-            if (minPrice != null && minPrice >= 0) {
-                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("price"), minPrice));
+            if (minPrice != null) {
+                double safeMin = Math.max(0.0, minPrice);
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("price"), safeMin));
             }
 
-            if (maxPrice != null && maxPrice >= 0) {
-                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("price"), maxPrice));
+            if (maxPrice != null) {
+                double safeMax = Math.max(0.0, maxPrice);
+                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("price"), safeMax));
             }
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));

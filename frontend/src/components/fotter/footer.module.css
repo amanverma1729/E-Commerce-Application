@@ -1,106 +1,116 @@
+/* =============================================================================
+   FLASH E-Commerce — Modern Minimalist Footer (footer.module.css)
+   ============================================================================= */
+
 .footerContainer {
-  background: #060911;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  color: var(--text-muted);
-  padding: 60px 0 30px 0;
-  margin-top: auto;
+  background: #ffffff;
+  border-top: 1px solid var(--border-color);
+  box-shadow: 0 -4px 16px rgba(15, 23, 42, 0.02);
+  padding: 48px 24px 24px;
 }
 
 .footerInner {
-  max-width: 1320px;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
 }
 
 .topSection {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
   gap: 30px;
-  padding-bottom: 40px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--border-color);
+  flex-wrap: wrap;
 }
 
 .brandCol {
-  max-width: 420px;
+  max-width: 480px;
 }
 
 .logoRow {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .logoBadge {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border-radius: var(--radius-md);
-  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-cyan) 100%);
+  background: var(--accent-primary);
+  color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #ffffff;
   font-size: 1.1rem;
+  box-shadow: var(--shadow-slate);
 }
 
 .logoText {
   font-family: var(--font-display);
   font-size: 1.5rem;
   font-weight: 800;
-  color: #ffffff;
-  letter-spacing: -0.5px;
+  color: var(--text-main);
+  letter-spacing: -0.03em;
 }
 
 .brandDesc {
-  font-size: 0.92rem;
+  font-size: 0.9rem;
   color: var(--text-muted);
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
 .newsletterCol {
-  min-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .colTitle {
-  font-size: 1rem;
-  color: #ffffff;
-  font-weight: 600;
-  margin-bottom: 12px;
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--text-main);
 }
 
 .subscribeForm {
   display: flex;
-  gap: 10px;
-  background: rgba(255, 255, 255, 0.04);
-  padding: 6px;
-  border-radius: var(--radius-md);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  gap: 8px;
 }
 
 .subscribeForm input {
-  background: transparent;
-  border: none;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  background: var(--bg-main);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  font-size: 0.88rem;
   outline: none;
-  padding: 8px 12px;
-  color: #ffffff;
-  font-size: 0.9rem;
-  width: 100%;
+  width: 260px;
+}
+
+.subscribeForm input:focus {
+  border-color: var(--accent-primary);
+  background: #ffffff;
 }
 
 .subscribeForm button {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 18px;
-  border-radius: var(--radius-sm);
+  padding: 10px 20px;
+  border-radius: var(--radius-md);
   background: var(--accent-primary);
   color: #ffffff;
+  font-size: 0.88rem;
+  font-weight: 700;
   border: none;
-  font-weight: 600;
   cursor: pointer;
-  white-space: nowrap;
+  box-shadow: var(--shadow-slate);
   transition: all var(--transition-fast);
 }
 
@@ -108,67 +118,72 @@
   background: var(--accent-primary-hover);
 }
 
+/* Links Grid */
 .linksGrid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 30px;
-  padding: 40px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .linkGroup h4 {
-  font-size: 0.95rem;
-  color: #ffffff;
-  font-weight: 700;
-  margin-bottom: 16px;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-bottom: 14px;
+  letter-spacing: -0.02em;
 }
 
 .linkGroup ul {
+  list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
-.linkGroup a {
+.linkGroup li a {
   font-size: 0.88rem;
   color: var(--text-muted);
-  transition: color var(--transition-fast);
+  transition: all var(--transition-fast);
 }
 
-.linkGroup a:hover {
-  color: var(--accent-cyan);
+.linkGroup li a:hover {
+  color: var(--accent-primary);
 }
 
 .trustBadges {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .badgeItem {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 0.88rem;
-  color: var(--text-main);
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--bg-main);
   padding: 8px 12px;
-  border-radius: var(--radius-sm);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-main);
 }
 
 .badgeIcon {
-  color: var(--accent-cyan);
-  font-size: 1rem;
+  font-size: 1.1rem;
+  color: var(--accent-primary);
 }
 
+/* Bottom Copyright */
 .bottomSection {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-color);
   flex-wrap: wrap;
-  gap: 20px;
-  padding-top: 30px;
+  gap: 16px;
 }
 
 .socialIcons {
@@ -181,65 +196,46 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--bg-main);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-main);
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   transition: all var(--transition-fast);
 }
 
 .socialIcons a:hover {
   background: var(--accent-primary);
-  border-color: var(--accent-primary);
   color: #ffffff;
+  border-color: var(--accent-primary);
   transform: translateY(-2px);
 }
 
 .copyright {
-  font-size: 0.85rem;
-  color: var(--text-dim);
+  font-size: 0.82rem;
+  color: var(--text-muted);
 }
 
-@media (max-width: 992px) {
-  .topSection {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .brandCol, .newsletterCol {
-    max-width: 100%;
-    width: 100%;
-  }
+@media (max-width: 900px) {
   .linksGrid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 24px;
   }
 }
 
 @media (max-width: 600px) {
-  .footerContainer {
-    padding: 40px 0 24px;
+  .topSection {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .subscribeForm {
+    width: 100%;
+  }
+  .subscribeForm input {
+    width: 100%;
   }
   .linksGrid {
     grid-template-columns: 1fr;
-    gap: 24px;
-  }
-  .subscribeForm {
-    flex-direction: column;
-  }
-  .subscribeForm button {
-    width: 100%;
-    justify-content: center;
-    min-height: 44px;
-  }
-  .bottomSection {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 16px;
   }
 }
-
-

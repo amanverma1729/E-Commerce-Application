@@ -49,7 +49,7 @@ public class ProductController {
 
         if (page != null || size != null || search != null || category != null || minPrice != null || maxPrice != null || sort != null) {
             int pageNum = page != null ? page : 0;
-            int pageSize = size != null ? size : 10;
+            int pageSize = size != null ? size : 50;
             PageResponse<ProductResponse> paginated = productService.getApprovedProductsPaginated(search, category, minPrice, maxPrice, pageNum, pageSize, sort);
             return ResponseEntity.ok(ApiResponse.success("Products retrieved successfully", paginated));
         }
@@ -109,6 +109,16 @@ public class ProductController {
     public ResponseEntity<ApiResponse<String>> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
         return ResponseEntity.ok(ApiResponse.success("Product deleted successfully.", null));
+    }
+
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyRole('SELLER', 'ADMIN')")
+    public ResponseEntity<ApiResponse<ProductResponse>> addProductJson(@RequestBody ProductRequest request) {
+        if (request.getProductOwnerId() == null && request.getSellerId() != null) {
+            request.setProductOwnerId(request.getSellerId());
+        }
+        ProductResponse response = productService.createProduct(request, null);
+        return ResponseEntity.ok(ApiResponse.success("Product added successfully", response));
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

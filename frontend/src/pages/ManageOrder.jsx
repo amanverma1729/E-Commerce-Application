@@ -12,6 +12,7 @@ import {
   FiArrowLeft,
 } from "react-icons/fi";
 import apiClient from "../api/apiClient";
+import { getRelevantProductImage } from "../utils/productImages";
 
 const ManageOrders = () => {
   const productOwnerId = Number(sessionStorage.getItem("productOwnerId") || localStorage.getItem("productOwnerId"));
@@ -154,16 +155,10 @@ const ManageOrders = () => {
 
                   <div className={styles.cardBody}>
                     <div className={styles.thumbWrapper}>
-                      {productImg ? (
-                        <img
-                          src={`data:image/jpeg;base64,${productImg}`}
-                          alt={productName}
-                        />
-                      ) : (
-                        <div className={styles.thumbPlaceholder}>
-                          <FiPackage />
-                        </div>
-                      )}
+                      <img
+                        src={getRelevantProductImage(order.product || { name: productName })}
+                        alt={productName}
+                      />
                     </div>
 
                     <div className={styles.productDetails}>

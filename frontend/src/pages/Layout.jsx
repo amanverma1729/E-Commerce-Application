@@ -1,23 +1,18 @@
 import React from "react";
-import Navbar from "../components/navbar/Navbar";
 import { Outlet } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
-import Footer from "../components/fotter/Footer";
-import styles from "./layout.module.css"; // Import your layout CSS
+import Navbar from "../components/layout/Navbar";
+import Footer from "../components/layout/Footer";
 
 const Layout = () => {
   return (
-    <div className={styles.layoutContainer}>
-      <header className={styles.header}>
-        <Navbar />
-        <Toaster />
-      </header>
-      <main className={styles.mainContent}>
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+      <Navbar />
+      <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
+      <main style={{ flex: 1 }}>
         <Outlet />
       </main>
-      <footer className={styles.footerContainer}>
-        <Footer />
-      </footer>
+      <Footer />
     </div>
   );
 };

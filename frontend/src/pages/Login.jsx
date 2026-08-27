@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styles from "./login.module.css";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import { FiMail, FiLock, FiLogIn, FiShield, FiUserCheck, FiZap } from "react-icons/fi";
 import apiClient from "../api/apiClient";
@@ -12,6 +12,7 @@ const Login = () => {
   });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -47,6 +48,8 @@ const Login = () => {
 
       const normalizedRole = (role || type || "").toUpperCase();
 
+      const fromPath = location.state?.from;
+
       if (
         normalizedRole.includes("SELLER") ||
         normalizedRole.includes("PRODUCT_OWNER") ||
@@ -57,31 +60,25 @@ const Login = () => {
         localStorage.setItem("userType", "PRODUCT_OWNER");
         localStorage.setItem("productOwnerId", id);
         toast.success("Welcome back, Seller!");
-        navigate("/productlist");
+        navigate(fromPath || "/productlist");
       } else if (
         normalizedRole.includes("USER") ||
-        normalizedRole.includes("CUSTOMER")
+        normalizedRole.includes("CUSTOMER") ||
+        id
       ) {
         sessionStorage.setItem("userType", "USER");
         sessionStorage.setItem("userID", id);
         localStorage.setItem("userType", "USER");
         localStorage.setItem("userID", id);
         toast.success("Login successful!");
-        navigate("/userprofile");
+        navigate(fromPath || "/userprofile");
       } else if (normalizedRole.includes("ADMIN")) {
         sessionStorage.setItem("userType", "ADMIN");
         sessionStorage.setItem("adminId", id);
         localStorage.setItem("userType", "ADMIN");
         localStorage.setItem("adminId", id);
         toast.success("Welcome back, Admin!");
-        navigate("/admindashboard");
-      } else if (id) {
-        sessionStorage.setItem("userType", "USER");
-        sessionStorage.setItem("userID", id);
-        localStorage.setItem("userType", "USER");
-        localStorage.setItem("userID", id);
-        toast.success("Login successful!");
-        navigate("/userprofile");
+        navigate(fromPath || "/admindashboard");
       } else {
         toast.error(message || "Invalid credentials");
       }

@@ -31,6 +31,12 @@ public class ProductRequest {
     @NotNull(message = "Product owner ID is required")
     private Long productOwnerId;
 
+    public void setSellerId(Long sellerId) {
+        if (this.productOwnerId == null) {
+            this.productOwnerId = sellerId;
+        }
+    }
+
     private boolean available = true;
     private List<String> productSizes;
     private List<String> productColors;

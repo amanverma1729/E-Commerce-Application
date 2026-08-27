@@ -1,122 +1,45 @@
 import { createBrowserRouter } from "react-router-dom";
 import React from "react";
-import Home from "../pages/Home";
 import Layout from "../pages/Layout";
-import Login from "../pages/Login";
-import Signup from "../pages/Signup";
-import AdminDashboard from "../pages/AdminDashboard";
-import UserPrivate from "./UserPrivate";
-import AdminPrivate from "./AdminPrivate";
-import ProductOwnerPrivate from "./ProductOwnerPrivate";
-import SignupProductOwner from "../pages/SignupProductOwner";
-import AddProduct from "../pages/AddProduct";
-import ProductList from "../pages/ProductList";
-import UpdateProduct from "../pages/UpdateProduct";
-import EditUser from "../pages/EditUser";
-import UserProfile from "../pages/UserProfile";
-import ProductPage from "../pages/ProductPage";
-// For placing an order for a specific product (requires a product id in URL)
+import Home from "../pages/Home";
+import ProductDetails from "../pages/ProductDetails";
 import CartPage from "../pages/CartPage";
-// For listing all orders (using a parameter if needed)
+import CheckoutPage from "../pages/CheckoutPage";
 import OrdersPage from "../pages/OrdersPage";
-import PaymentPage from "../pages/PaymentPage";
-import ManageOrders from "../pages/ManageOrder";
-import EditOwner from "../pages/EditOwner";
-import PrivateRoute from "./PrivateRoute";
-export let myRoutes = createBrowserRouter([
+import WishlistPage from "../pages/WishlistPage";
+import LoginPage from "../pages/LoginPage";
+import RegisterPage from "../pages/RegisterPage";
+import SellerRegisterPage from "../pages/SellerRegisterPage";
+import UserProfilePage from "../pages/UserProfilePage";
+import SellerDashboardPage from "../pages/SellerDashboardPage";
+import AdminDashboardPage from "../pages/AdminDashboardPage";
+
+export const myRoutes = createBrowserRouter([
   {
     path: "/",
     element: <Layout />,
     children: [
       { index: true, element: <Home /> },
-      { path: "/login", element: <Login /> },
-      { path: "/signup", element: <Signup /> },
-      { path: "/signupproductowner", element: <SignupProductOwner /> },
-      { path: "/productlist", element: <ProductList /> },
-      {
-        path: "/admindashboard",
-        element: <AdminDashboard />,
-      },
-      {
-        path: "/userprofile",
-        element: (
-          <UserPrivate>
-            <UserProfile />
-          </UserPrivate>
-        ),
-      },
-      {
-        // Product details page
-        path: "/products/:id",
-        element: (
-          <PrivateRoute>
-            <ProductPage />,
-          </PrivateRoute>
-        ),
-      },
-      ,
-      {
-        path: "/payment/:id",
-        element: (
-          <UserPrivate>
-            <PaymentPage />
-          </UserPrivate>
-        ),
-      },
-      {
-        // Orders list page (with a parameter, e.g. user id for filtering)
-        path: "/orderpage/:id",
-        element: (
-          <UserPrivate>
-            <OrdersPage />
-          </UserPrivate>
-        ),
-      },
-      {
-        // Cart page for placing an order for a specific product.
-        path: "/cartpage/:id",
-        element: (
-          <UserPrivate>
-            <CartPage />
-          </UserPrivate>
-        ),
-      },
-      {
-        path: "/edituser",
-        element: (
-          <UserPrivate>
-            <EditUser />
-          </UserPrivate>
-        ),
-      },
-      {
-        path: "/addproduct",
-        element: (
-          <ProductOwnerPrivate>
-            <AddProduct />
-          </ProductOwnerPrivate>
-        ),
-      },
-      {
-        path: "/updateproduct/:id",
-        element: (
-          <PrivateRoute>
-            <UpdateProduct />
-          </PrivateRoute>
-        ),
-      },
-      {
-        path: "/manageorders",
-        element: (
-          <PrivateRoute>
-            <ManageOrders />
-          </PrivateRoute>
-        ),
-      },
-      {
-        path: "/editowner/:id",
-        element: <EditOwner />,
-      },
+      { path: "/product/:id", element: <ProductDetails /> },
+      { path: "/products/:id", element: <ProductDetails /> },
+      { path: "/cart", element: <CartPage /> },
+      { path: "/cartpage/:id", element: <CartPage /> },
+      { path: "/checkout", element: <CheckoutPage /> },
+      { path: "/payment/:id", element: <CheckoutPage /> },
+      { path: "/orders", element: <OrdersPage /> },
+      { path: "/orderpage/:id", element: <OrdersPage /> },
+      { path: "/wishlist", element: <WishlistPage /> },
+      { path: "/login", element: <LoginPage /> },
+      { path: "/register", element: <RegisterPage /> },
+      { path: "/signup", element: <RegisterPage /> },
+      { path: "/seller/register", element: <SellerRegisterPage /> },
+      { path: "/signupproductowner", element: <SellerRegisterPage /> },
+      { path: "/profile", element: <UserProfilePage /> },
+      { path: "/userprofile", element: <UserProfilePage /> },
+      { path: "/seller/dashboard", element: <SellerDashboardPage /> },
+      { path: "/addproduct", element: <SellerDashboardPage /> },
+      { path: "/admin/dashboard", element: <AdminDashboardPage /> },
+      { path: "/admindashboard", element: <AdminDashboardPage /> },
     ],
   },
 ]);

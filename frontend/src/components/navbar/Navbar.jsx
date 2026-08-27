@@ -18,13 +18,16 @@ import {
   FiX,
 } from "react-icons/fi";
 
+import { useCart } from "../../context/CartContext";
+
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { cartCount, clearCartState } = useCart();
   const [loggedIn, setLoggedIn] = useState({
-    userID: sessionStorage.getItem("userID"),
-    productOwnerId: sessionStorage.getItem("productOwnerId"),
-    adminId: sessionStorage.getItem("adminId"),
+    userID: sessionStorage.getItem("userID") || localStorage.getItem("userID"),
+    productOwnerId: sessionStorage.getItem("productOwnerId") || localStorage.getItem("productOwnerId"),
+    adminId: sessionStorage.getItem("adminId") || localStorage.getItem("adminId"),
   });
 
   const navigate = useNavigate();
@@ -40,23 +43,26 @@ const Navbar = () => {
 
   useEffect(() => {
     setLoggedIn({
-      userID: sessionStorage.getItem("userID"),
-      productOwnerId: sessionStorage.getItem("productOwnerId"),
-      adminId: sessionStorage.getItem("adminId"),
+      userID: sessionStorage.getItem("userID") || localStorage.getItem("userID"),
+      productOwnerId: sessionStorage.getItem("productOwnerId") || localStorage.getItem("productOwnerId"),
+      adminId: sessionStorage.getItem("adminId") || localStorage.getItem("adminId"),
     });
     setMobileMenuOpen(false);
   }, [location]);
 
   const logout = () => {
-    if (loggedIn.productOwnerId) {
-      sessionStorage.removeItem("productOwnerId");
-    }
-    if (loggedIn.userID) {
-      sessionStorage.removeItem("userID");
-    }
-    if (loggedIn.adminId) {
-      sessionStorage.removeItem("adminId");
-    }
+    sessionStorage.removeItem("productOwnerId");
+    sessionStorage.removeItem("userID");
+    sessionStorage.removeItem("adminId");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("accessToken");
+    localStorage.removeItem("productOwnerId");
+    localStorage.removeItem("userID");
+    localStorage.removeItem("adminId");
+    localStorage.removeItem("token");
+    localStorage.removeItem("accessToken");
+
+    clearCartState();
     toast.success("Logged out successfully");
     setLoggedIn({ userID: null, productOwnerId: null, adminId: null });
     setMobileMenuOpen(false);
@@ -81,12 +87,7 @@ const Navbar = () => {
       <div className={style.navInner}>
         {/* Brand Logo */}
         <Link to="/" className={style.brandLogo} onClick={() => setMobileMenuOpen(false)}>
-          <div className={style.logoBadge}>
-            <FiZap className={style.zapIcon} />
-          </div>
-          <span className={style.logoText}>
-            FLASH<span className={style.logoDot}>.</span>
-          </span>
+          <img src="/flash-logo.png" alt="FLASH Logo" style={{ height: "48px", objectFit: "contain" }} />
         </Link>
 
         {/* Desktop Navigation Links */}
@@ -115,15 +116,18 @@ const Navbar = () => {
                 <span>My Orders</span>
               </Link>
               <Link
-                to={`/cartpage/${loggedIn.userID}`}
+                to="/cart"
                 className={`${style.navLink} ${
-                  location.pathname.startsWith("/cartpage")
+                  location.pathname.startsWith("/cart")
                     ? style.activeLink
                     : ""
                 }`}
               >
                 <FiShoppingCart className={style.linkIcon} />
                 <span>Cart</span>
+                {cartCount > 0 && (
+                  <span className={style.cartBadge}>{cartCount}</span>
+                )}
               </Link>
             </>
           )}
@@ -261,12 +265,15 @@ const Navbar = () => {
                     <span>My Orders</span>
                   </Link>
                   <Link
-                    to={`/cartpage/${loggedIn.userID}`}
+                    to="/cart"
                     className={style.mobileNavLink}
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <FiShoppingCart />
                     <span>My Cart</span>
+                    {cartCount > 0 && (
+                      <span className={style.cartBadge}>{cartCount}</span>
+                    )}
                   </Link>
                 </>
               )}

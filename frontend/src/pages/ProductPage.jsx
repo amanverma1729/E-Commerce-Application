@@ -13,6 +13,8 @@ import {
   FiShoppingBag,
 } from "react-icons/fi";
 import apiClient from "../api/apiClient";
+import { useCart } from "../context/CartContext";
+import { getRelevantProductImage } from "../utils/productImages";
 
 const ProductPage = () => {
   const { id } = useParams();
@@ -22,6 +24,7 @@ const ProductPage = () => {
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
   const [quantity, setQuantity] = useState(1);
+  const { addToCart, addingIds } = useCart();
 
   const userID = sessionStorage.getItem("userID") || localStorage.getItem("userID");
 
@@ -77,45 +80,14 @@ const ProductPage = () => {
       navigate("/login");
       return;
     }
-    try {
-      const orderPayload = {
-        product: { id: product.id },
-        user: { id: parseInt(userID) },
-        quantity: quantity,
-        status: "Ordered",
-      };
-      const response = await apiClient.post(
-        "/api/v1/orders",
-        orderPayload
-      );
-      const data = response.data?.data || response.data;
-      toast.success("Order initiated successfully");
-      navigate(`/payment/${data.id}`);
-    } catch (error) {
-      console.error("Error placing order:", error);
-      toast.error("Failed to place order");
+    const success = await addToCart(product.id, quantity, product.name);
+    if (success) {
+      navigate("/cart");
     }
   };
 
   const handleAddToCart = async () => {
-    if (!userID) {
-      toast.error("Please log in to add products to your cart.");
-      navigate("/login");
-      return;
-    }
-    try {
-      const orderPayload = {
-        product: { id: product.id },
-        user: { id: parseInt(userID) },
-        quantity: quantity,
-        status: "In Cart",
-      };
-      await apiClient.post("/api/v1/orders", orderPayload);
-      toast.success("Product added to cart!");
-    } catch (error) {
-      console.error("Error adding to cart:", error);
-      toast.error("Failed to add product to cart");
-    }
+    await addToCart(product.id, quantity, product.name);
   };
 
   return (
@@ -129,18 +101,11 @@ const ProductPage = () => {
           {/* Left Column: Image Showcase */}
           <div className={styles.imageColumn}>
             <div className={styles.mainImageCard}>
-              {product.productImageBase64 ? (
-                <img
-                  src={`data:image/jpeg;base64,${product.productImageBase64}`}
-                  alt={product.name}
-                  className={styles.mainImage}
-                />
-              ) : (
-                <div className={styles.placeholderBox}>
-                  <FiShoppingBag className={styles.placeholderIcon} />
-                  <span>{product.name}</span>
-                </div>
-              )}
+              <img
+                src={getRelevantProductImage(product)}
+                alt={product.name}
+                className={styles.mainImage}
+              />
               <div className={styles.imageBadge}>
                 {product.approved ? "VERIFIED AUTHENTIC" : "PENDING REVIEW"}
               </div>
