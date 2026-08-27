@@ -379,19 +379,19 @@ const Home = () => {
                 {products.map((product) => renderProductCard(product))}
               </div>
               {totalPages > 1 && (
-                <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginTop: "30px" }}>
+                <div className={styles.paginationBar}>
                   <button
+                    className={styles.pageBtn}
                     disabled={page === 0}
                     onClick={() => setPage((p) => Math.max(0, p - 1))}
-                    style={{ padding: "8px 16px", borderRadius: "6px", cursor: page === 0 ? "not-allowed" : "pointer" }}
                   >
                     Previous
                   </button>
-                  <span style={{ alignSelf: "center" }}>Page {page + 1} of {totalPages}</span>
+                  <span className={styles.pageInfo}>Page {page + 1} of {totalPages}</span>
                   <button
+                    className={styles.pageBtn}
                     disabled={page >= totalPages - 1}
                     onClick={() => setPage((p) => p + 1)}
-                    style={{ padding: "8px 16px", borderRadius: "6px", cursor: page >= totalPages - 1 ? "not-allowed" : "pointer" }}
                   >
                     Next
                   </button>
