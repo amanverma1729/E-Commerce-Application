@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:9090';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://e-commerce-application-u52i.onrender.com';
 
 const apiClient = axios.create({
   baseURL: BASE_URL,
