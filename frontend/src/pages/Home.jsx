@@ -27,6 +27,8 @@ import {
   FiAlertCircle,
   FiRefreshCw,
   FiClock,
+  FiLock,
+  FiCheckCircle,
 } from "react-icons/fi";
 import apiClient from "../api/apiClient";
 
@@ -472,18 +474,18 @@ const Home = () => {
       <section className={styles.heroSection}>
         <div className={styles.heroGlow} />
         <div className={styles.heroInner}>
-          {/* Left Column: Headline, CTAs & Metrics */}
+          {/* Left Column: Headline & CTAs */}
           <div className={styles.heroLeft}>
             <div className={styles.heroBadge}>
               <FiZap className={styles.heroZap} />
-              <span>FLASH SEASON SALE • UP TO 50% OFF</span>
+              <span>FLASH MARKETPLACE • DIRECT FROM VERIFIED SELLERS</span>
             </div>
             <h1 className={styles.heroTitle}>
-              Premium Products. <br />
+              Authentic Products. <br />
               <span className={styles.heroGradientText}>Instant Delivery.</span>
             </h1>
             <p className={styles.heroSub}>
-              Discover authentic electronics, fashion, and lifestyle essentials from verified sellers with instant order processing, express delivery, and buyer protection.
+              Discover electronics, fashion, and lifestyle essentials from authenticated product owners with real-time tracking and buyer protection.
             </p>
             <div className={styles.heroActions}>
               <button
@@ -507,21 +509,36 @@ const Home = () => {
               )}
             </div>
 
-            {/* Metrics Bar */}
+            {/* Authentic Trust Pillars Bar */}
             <div className={styles.metricsGrid}>
               <div className={styles.metricItem}>
-                <span className={styles.metricNumber}>10K+</span>
-                <span className={styles.metricLabel}>Verified Products</span>
+                <div className={`${styles.metricIconWrap} ${styles.iconWrapLock}`}>
+                  <FiLock className={styles.metricIcon} />
+                </div>
+                <div className={styles.metricTextGroup}>
+                  <span className={styles.metricTitle}>Secure Payments</span>
+                  <span className={styles.metricSub}>256-bit Encrypted</span>
+                </div>
               </div>
               <div className={styles.metricDivider} />
               <div className={styles.metricItem}>
-                <span className={styles.metricNumber}>24h</span>
-                <span className={styles.metricLabel}>Express Delivery</span>
+                <div className={`${styles.metricIconWrap} ${styles.iconWrapCheck}`}>
+                  <FiCheckCircle className={styles.metricIcon} />
+                </div>
+                <div className={styles.metricTextGroup}>
+                  <span className={styles.metricTitle}>Verified Sellers</span>
+                  <span className={styles.metricSub}>Direct Fulfillment</span>
+                </div>
               </div>
               <div className={styles.metricDivider} />
               <div className={styles.metricItem}>
-                <span className={styles.metricNumber}>99.9%</span>
-                <span className={styles.metricLabel}>Satisfaction Rate</span>
+                <div className={`${styles.metricIconWrap} ${styles.iconWrapTruck}`}>
+                  <FiTruck className={styles.metricIcon} />
+                </div>
+                <div className={styles.metricTextGroup}>
+                  <span className={styles.metricTitle}>Real-Time Tracking</span>
+                  <span className={styles.metricSub}>Live Status Updates</span>
+                </div>
               </div>
             </div>
           </div>
@@ -533,34 +550,34 @@ const Home = () => {
               <div className={styles.mainVisualCard}>
                 <img
                   src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80"
-                  alt="Studio Wireless Noise-Cancelling Headphones"
-                  className={styles.mainVisualImg}
+                  alt="Premium Wireless Headphones"
+                  className={styles.heroMainImg}
                 />
-                <div className={styles.mainVisualOverlay}>
-                  <span className={styles.visualCategory}>AUDIO & ELECTRONICS</span>
-                  <h4 className={styles.visualTitle}>Studio Wireless Headphones</h4>
-                  <div className={styles.visualPriceRow}>
-                    <span className={styles.visualPrice}>₹14,999</span>
-                    <span className={styles.visualOldPrice}>₹19,999</span>
+                <div className={styles.cardGlassBadge}>
+                  <span className={styles.badgeCategory}>ELECTRONICS</span>
+                  <h4 className={styles.badgeTitle}>Pro Studio Headphones</h4>
+                  <div className={styles.badgePriceRow}>
+                    <span className={styles.badgePrice}>₹8,499</span>
+                    <span className={styles.badgeOriginalPrice}>₹12,999</span>
                   </div>
                 </div>
               </div>
 
-              {/* Secondary Product Thumbnails */}
-              <div className={styles.visualGrid}>
-                <div className={styles.visualThumbCard}>
+              {/* Floating Miniature Product Previews */}
+              <div className={styles.miniCardsContainer}>
+                <div className={styles.miniCard}>
                   <img
                     src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=400&q=80"
-                    alt="Nike Air Max Sneakers"
+                    alt="Air Runner Sneakers"
                     className={styles.thumbImg}
                   />
                   <div className={styles.thumbInfo}>
-                    <span className={styles.thumbName}>Air Max Sneakers</span>
-                    <span className={styles.thumbPrice}>₹8,499</span>
+                    <span className={styles.thumbName}>Air Speed Runners</span>
+                    <span className={styles.thumbPrice}>₹3,299</span>
                   </div>
                 </div>
 
-                <div className={styles.visualThumbCard}>
+                <div className={styles.miniCard}>
                   <img
                     src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=400&q=80"
                     alt="Ultra Fit Smartwatch"
@@ -577,8 +594,8 @@ const Home = () => {
               <div className={`${styles.floatingTag} ${styles.tagTopLeft}`}>
                 <FiZap className={styles.tagIconZap} />
                 <div>
-                  <span className={styles.tagTitle}>Hot Season Deal</span>
-                  <span className={styles.tagSub}>Save up to 40% OFF</span>
+                  <span className={styles.tagTitle}>Direct Fulfillment</span>
+                  <span className={styles.tagSub}>Live Inventory Sync</span>
                 </div>
               </div>
 
@@ -586,7 +603,7 @@ const Home = () => {
                 <FiShield className={styles.tagIconShield} />
                 <div>
                   <span className={styles.tagTitle}>Buyer Protection</span>
-                  <span className={styles.tagSub}>100% Genuine Certified</span>
+                  <span className={styles.tagSub}>100% Genuine Guaranteed</span>
                 </div>
               </div>
             </div>
@@ -619,10 +636,10 @@ const Home = () => {
               <FiSearch className={styles.searchIcon} />
               <input
                 type="text"
-                placeholder="Search by product name, description, category..."
+                className={styles.searchInput}
+                placeholder="Search products by name, description, category..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className={styles.searchInput}
               />
               {searchTerm && (
                 <button
@@ -630,14 +647,16 @@ const Home = () => {
                   className={styles.clearSearchBtn}
                   onClick={() => {
                     setSearchTerm("");
-                    setPage(0);
                     fetchProducts(0, "", selectedCategory, minPrice, maxPrice, sortBy);
                   }}
+                  title="Clear search"
                 >
                   <FiX />
                 </button>
               )}
-              <button type="submit" className={styles.searchBtn}>Search</button>
+              <button type="submit" className={styles.searchSubmitBtn}>
+                Search
+              </button>
             </form>
 
             <button
@@ -651,114 +670,112 @@ const Home = () => {
             </button>
           </div>
 
-          {/* Desktop Filter Controls Bar */}
+          {/* Desktop Filter Controls */}
           <div className={styles.desktopControlsBar}>
             {/* Category Pills */}
             <div className={styles.categoryPills}>
-              <button
-                type="button"
-                className={`${styles.filterChip} ${
-                  selectedCategory === "all" ? styles.activeChip : ""
-                }`}
-                onClick={() => {
-                  setSelectedCategory("all");
-                  setPage(0);
-                  fetchProducts(0, searchTerm, "all", minPrice, maxPrice, sortBy);
-                }}
-              >
-                All Categories
-              </button>
-              {["Electronics", "Fashion", "Home", "Books"].map((cat) => (
+              {[
+                { id: "all", label: "All Categories" },
+                { id: "electronics", label: "Electronics" },
+                { id: "fashion", label: "Fashion" },
+                { id: "home", label: "Home & Living" },
+                { id: "books", label: "Books" },
+              ].map((cat) => (
                 <button
+                  key={cat.id}
                   type="button"
-                  key={cat}
-                  className={`${styles.filterChip} ${
-                    selectedCategory.toLowerCase() === cat.toLowerCase()
-                      ? styles.activeChip
-                      : ""
+                  className={`${styles.categoryPill} ${
+                    selectedCategory === cat.id ? styles.activeCategoryPill : ""
                   }`}
                   onClick={() => {
-                    setSelectedCategory(cat);
+                    setSelectedCategory(cat.id);
                     setPage(0);
-                    fetchProducts(0, searchTerm, cat, minPrice, maxPrice, sortBy);
+                    fetchProducts(0, searchTerm, cat.id, minPrice, maxPrice, sortBy);
                   }}
                 >
-                  {cat}
+                  {cat.label}
                 </button>
               ))}
             </div>
 
-            {/* Right Controls: Price Range & Sort By */}
-            <div className={styles.rightControls}>
-              {/* Price Filter Form */}
-              <form
-                className={styles.priceFilterForm}
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  setPage(0);
-                  fetchProducts(0, searchTerm, selectedCategory, minPrice, maxPrice, sortBy);
-                }}
-              >
-                <span className={styles.priceLabel}>Price:</span>
+            {/* Price Inputs & Sort Dropdown Group */}
+            <div className={styles.controlsRightGroup}>
+              <div className={styles.priceFilterGroup}>
+                <span className={styles.priceFilterLabel}>Price:</span>
                 <input
                   type="number"
+                  className={styles.priceInput}
                   placeholder="Min ₹"
                   value={minPrice}
                   onChange={(e) => setMinPrice(e.target.value)}
-                  className={styles.priceInput}
                 />
                 <span className={styles.priceDash}>-</span>
                 <input
                   type="number"
+                  className={styles.priceInput}
                   placeholder="Max ₹"
                   value={maxPrice}
                   onChange={(e) => setMaxPrice(e.target.value)}
-                  className={styles.priceInput}
                 />
-                <button type="submit" className={styles.priceApplyBtn}>Apply</button>
-              </form>
+                <button
+                  type="button"
+                  className={styles.applyPriceBtn}
+                  onClick={() => {
+                    setPage(0);
+                    fetchProducts(0, searchTerm, selectedCategory, minPrice, maxPrice, sortBy);
+                  }}
+                >
+                  Apply
+                </button>
+              </div>
 
               {/* Sort Select */}
               <div className={styles.sortWrapper}>
                 <span className={styles.sortLabel}>Sort:</span>
-                <select
-                  value={sortBy}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setSortBy(val);
-                    setPage(0);
-                    fetchProducts(0, searchTerm, selectedCategory, minPrice, maxPrice, val);
-                  }}
-                  className={styles.sortSelect}
-                >
-                  <option value="relevance">Featured & Relevant</option>
-                  <option value="price_asc">Price: Low to High</option>
-                  <option value="price_desc">Price: High to Low</option>
-                  <option value="newest">Newest Arrivals</option>
-                  <option value="best_rated">Best Rated & Stock</option>
-                </select>
+                <div className={styles.selectContainer}>
+                  <select
+                    className={styles.sortSelect}
+                    value={sortBy}
+                    onChange={(e) => {
+                      setSortBy(e.target.value);
+                      setPage(0);
+                      fetchProducts(0, searchTerm, selectedCategory, minPrice, maxPrice, e.target.value);
+                    }}
+                  >
+                    <option value="relevance">Featured & Relevant</option>
+                    <option value="price_asc">Price: Low to High</option>
+                    <option value="price_desc">Price: High to Low</option>
+                    <option value="newest">Newest Arrivals</option>
+                    <option value="best_rated">Best Rated & Stock</option>
+                  </select>
+                  <FiChevronDown className={styles.selectArrow} />
+                </div>
               </div>
 
-              {/* Clear Filters Button */}
               {hasActiveFilters && (
                 <button
                   type="button"
-                  className={styles.clearAllBtn}
+                  className={styles.clearFiltersPill}
                   onClick={handleClearAllFilters}
-                  title="Reset all filters"
+                  title="Clear all filters"
                 >
-                  <FiRotateCcw />
-                  <span>Reset</span>
+                  <FiX /> Clear
                 </button>
               )}
             </div>
           </div>
         </div>
 
-        {/* Mobile Filter Drawer Modal */}
+        {/* Mobile Filter Drawer Overlay */}
         {showMobileFilters && (
-          <div className={styles.mobileDrawerOverlay} onClick={() => setShowMobileFilters(false)}>
-            <div className={styles.mobileDrawerContent} onClick={(e) => e.stopPropagation()}>
+          <div
+            className={styles.mobileDrawerOverlay}
+            onClick={() => setShowMobileFilters(false)}
+          >
+            <div
+              className={styles.mobileDrawerContent}
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className={styles.drawerHeader}>
                 <h3>Filter & Sort Products</h3>
                 <button
@@ -771,29 +788,27 @@ const Home = () => {
               </div>
 
               <div className={styles.drawerBody}>
-                {/* Category Group */}
                 <div className={styles.drawerGroup}>
                   <label className={styles.drawerLabel}>Category</label>
                   <select
+                    className={styles.drawerSelect}
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value)}
-                    className={styles.drawerSelect}
                   >
                     <option value="all">All Categories</option>
-                    <option value="Electronics">Electronics</option>
-                    <option value="Fashion">Fashion</option>
-                    <option value="Home">Home</option>
-                    <option value="Books">Books</option>
+                    <option value="electronics">Electronics</option>
+                    <option value="fashion">Fashion</option>
+                    <option value="home">Home & Living</option>
+                    <option value="books">Books</option>
                   </select>
                 </div>
 
-                {/* Sort By Group */}
                 <div className={styles.drawerGroup}>
                   <label className={styles.drawerLabel}>Sort By</label>
                   <select
+                    className={styles.drawerSelect}
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
-                    className={styles.drawerSelect}
                   >
                     <option value="relevance">Featured & Relevant</option>
                     <option value="price_asc">Price: Low to High</option>
@@ -803,24 +818,23 @@ const Home = () => {
                   </select>
                 </div>
 
-                {/* Price Range Group */}
                 <div className={styles.drawerGroup}>
                   <label className={styles.drawerLabel}>Price Range (₹)</label>
                   <div className={styles.drawerPriceRow}>
                     <input
                       type="number"
-                      placeholder="Min ₹"
+                      className={styles.drawerInput}
+                      placeholder="Min"
                       value={minPrice}
                       onChange={(e) => setMinPrice(e.target.value)}
-                      className={styles.drawerInput}
                     />
                     <span>to</span>
                     <input
                       type="number"
-                      placeholder="Max ₹"
+                      className={styles.drawerInput}
+                      placeholder="Max"
                       value={maxPrice}
                       onChange={(e) => setMaxPrice(e.target.value)}
-                      className={styles.drawerInput}
                     />
                   </div>
                 </div>
@@ -830,12 +844,9 @@ const Home = () => {
                 <button
                   type="button"
                   className={styles.drawerResetBtn}
-                  onClick={() => {
-                    handleClearAllFilters();
-                    setShowMobileFilters(false);
-                  }}
+                  onClick={handleClearAllFilters}
                 >
-                  Reset All
+                  Reset
                 </button>
                 <button
                   type="button"
@@ -939,39 +950,47 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Trust & Guarantee Banner */}
+      {/* Authentic Marketplace Trust Guarantees */}
       <section className={styles.trustBanner}>
+        <div className={styles.trustSectionHeader}>
+          <span className={styles.trustBadgeTitle}>BUYER & SELLER PROTECTION</span>
+          <h3 className={styles.trustMainTitle}>Built on Security & Marketplace Transparency</h3>
+          <p className={styles.trustSubTitle}>
+            Our platform guarantees genuine product listings, encrypted payment processing, and transparent order lifecycle tracking.
+          </p>
+        </div>
+
         <div className={styles.trustGrid}>
           <div className={styles.trustCard}>
-            <div className={styles.trustIconWrapper}>
+            <div className={`${styles.trustIconWrapper} ${styles.iconWrapLock}`}>
+              <FiLock />
+            </div>
+            <h4>Secure Payments</h4>
+            <p>256-bit encrypted checkout keeping payment details and transaction records safe.</p>
+          </div>
+
+          <div className={styles.trustCard}>
+            <div className={`${styles.trustIconWrapper} ${styles.iconWrapCheck}`}>
+              <FiCheckCircle />
+            </div>
+            <h4>Verified Sellers</h4>
+            <p>Products sourced directly from authenticated sellers and approved product owners.</p>
+          </div>
+
+          <div className={styles.trustCard}>
+            <div className={`${styles.trustIconWrapper} ${styles.iconWrapTruck}`}>
               <FiTruck />
             </div>
-            <h4>Express Shipping</h4>
-            <p>Fast doorstep delivery across all metro regions with live order status tracking.</p>
+            <h4>Real-Time Order Tracking</h4>
+            <p>Live status updates from cart checkout to order confirmation and delivery.</p>
           </div>
 
           <div className={styles.trustCard}>
-            <div className={styles.trustIconWrapper}>
-              <FiShield />
-            </div>
-            <h4>Buyer Protection</h4>
-            <p>100% genuine products sourced directly from verified authorized product owners.</p>
-          </div>
-
-          <div className={styles.trustCard}>
-            <div className={styles.trustIconWrapper}>
+            <div className={`${styles.trustIconWrapper} ${styles.iconWrapReturn}`}>
               <FiRotateCcw />
             </div>
             <h4>Easy 30-Day Returns</h4>
-            <p>Hassle-free replacement guarantee if product doesn't match your expectation.</p>
-          </div>
-
-          <div className={styles.trustCard}>
-            <div className={styles.trustIconWrapper}>
-              <FiHeadphones />
-            </div>
-            <h4>24/7 VIP Support</h4>
-            <p>Dedicated customer service team standing by to assist with orders anytime.</p>
+            <p>Simple replacement guarantee if delivered items don't match listing descriptions.</p>
           </div>
         </div>
       </section>

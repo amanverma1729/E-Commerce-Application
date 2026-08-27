@@ -190,47 +190,80 @@
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
 }
 
-/* Metrics Bar */
+/* Authentic Trust Pillars Bar */
 .metricsGrid {
   display: flex;
   align-items: center;
-  gap: 40px;
+  gap: 24px;
   background: linear-gradient(180deg, rgba(20, 27, 44, 0.75) 0%, rgba(13, 18, 30, 0.85) 100%);
-  padding: 16px 36px;
+  padding: 14px 28px;
   border-radius: var(--radius-full);
   border: 1px solid rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(20px);
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4), 0 0 20px rgba(99, 102, 241, 0.08);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
 }
 
 .metricItem {
   display: flex;
-  flex-direction: column;
   align-items: center;
+  gap: 12px;
 }
 
-.metricNumber {
-  font-family: var(--font-display);
-  font-size: 1.45rem;
-  font-weight: 800;
+.metricIconWrap {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.05rem;
+}
+
+.iconWrapLock {
+  background: rgba(6, 182, 212, 0.12);
+  border: 1px solid rgba(6, 182, 212, 0.3);
+  color: #06b6d4;
+}
+
+.iconWrapCheck {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #10b981;
+}
+
+.iconWrapTruck {
+  background: rgba(99, 102, 241, 0.12);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  color: #818cf8;
+}
+
+.iconWrapReturn {
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  color: #fbbf24;
+}
+
+.metricTextGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.metricTitle {
+  font-size: 0.88rem;
+  font-weight: 700;
   color: #ffffff;
-  letter-spacing: -0.5px;
-  background: linear-gradient(135deg, #ffffff 0%, #06b6d4 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
 }
 
-.metricLabel {
-  font-size: 0.78rem;
+.metricSub {
+  font-size: 0.75rem;
   color: #9ca3af;
-  font-weight: 500;
-  margin-top: 2px;
+  margin-top: 1px;
 }
 
 .metricDivider {
   width: 1px;
-  height: 30px;
-  background: rgba(255, 255, 255, 0.12);
+  height: 28px;
+  background: rgba(255, 255, 255, 0.1);
 }
 
 /* Right Column Visual Showcase Composition */
@@ -1750,62 +1783,88 @@
    ============================================================================= */
 .trustBanner {
   max-width: 1340px;
-  margin: 20px auto 0;
+  margin: 40px auto 0;
   padding: 0 24px;
   position: relative;
   z-index: 1;
 }
 
+.trustSectionHeader {
+  text-align: center;
+  max-width: 640px;
+  margin: 0 auto 36px;
+}
+
+.trustBadgeTitle {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #06b6d4;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+}
+
+.trustMainTitle {
+  font-family: var(--font-display);
+  font-size: 1.65rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 6px 0 10px;
+}
+
+.trustSubTitle {
+  font-size: 0.94rem;
+  color: #9ca3af;
+  line-height: 1.55;
+}
+
 .trustGrid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 26px;
-  background: linear-gradient(180deg, rgba(20, 27, 44, 0.6) 0%, rgba(13, 18, 30, 0.7) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: var(--radius-lg);
-  padding: 36px 28px;
-  backdrop-filter: blur(14px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  gap: 22px;
 }
 
 .trustCard {
+  background: linear-gradient(180deg, rgba(20, 27, 44, 0.6) 0%, rgba(13, 18, 30, 0.7) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-lg);
+  padding: 26px 22px;
+  backdrop-filter: blur(14px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
-  transition: transform var(--transition-fast);
+  align-items: flex-start;
+  text-align: left;
+  transition: all 0.25s ease;
 }
 
 .trustCard:hover {
   transform: translateY(-4px);
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
 }
 
 .trustIconWrapper {
-  width: 56px;
-  height: 56px;
+  width: 46px;
+  height: 46px;
   border-radius: var(--radius-md);
-  background: rgba(99, 102, 241, 0.14);
-  border: 1px solid rgba(99, 102, 241, 0.3);
-  color: #06b6d4;
-  font-size: 1.6rem;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 1.3rem;
   margin-bottom: 16px;
-  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.15);
 }
 
 .trustCard h4 {
-  font-size: 1.05rem;
+  font-size: 1.02rem;
   color: #ffffff;
   font-weight: 700;
   margin-bottom: 8px;
 }
 
 .trustCard p {
-  font-size: 0.88rem;
+  font-size: 0.86rem;
   color: #9ca3af;
-  line-height: 1.55;
+  line-height: 1.5;
 }
 
 /* =============================================================================
