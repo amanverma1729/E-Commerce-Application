@@ -276,17 +276,18 @@ const Home = () => {
       <section className={styles.heroSection}>
         <div className={styles.heroGlow} />
         <div className={styles.heroInner}>
-          <div className={styles.heroContent}>
+          {/* Left Column: Headline, CTAs & Metrics */}
+          <div className={styles.heroLeft}>
             <div className={styles.heroBadge}>
               <FiZap className={styles.heroZap} />
               <span>FLASH SEASON SALE • UP TO 50% OFF</span>
             </div>
             <h1 className={styles.heroTitle}>
-              Next-Gen E-Commerce <br />
-              <span className={styles.heroGradientText}>Real-Time Marketplace</span>
+              Premium Products. <br />
+              <span className={styles.heroGradientText}>Instant Delivery.</span>
             </h1>
             <p className={styles.heroSub}>
-              Discover authentic products from verified sellers with instant order processing, express delivery, and seamless checkout.
+              Discover authentic electronics, fashion, and lifestyle essentials from verified sellers with instant order processing, express delivery, and buyer protection.
             </p>
             <div className={styles.heroActions}>
               <button
@@ -325,6 +326,72 @@ const Home = () => {
               <div className={styles.metricItem}>
                 <span className={styles.metricNumber}>99.9%</span>
                 <span className={styles.metricLabel}>Satisfaction Rate</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: Realistic E-Commerce Product Showcase Composition */}
+          <div className={styles.heroRight}>
+            <div className={styles.visualContainer}>
+              {/* Main Product Showcase Card */}
+              <div className={styles.mainVisualCard}>
+                <img
+                  src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80"
+                  alt="Studio Wireless Noise-Cancelling Headphones"
+                  className={styles.mainVisualImg}
+                />
+                <div className={styles.mainVisualOverlay}>
+                  <span className={styles.visualCategory}>AUDIO & ELECTRONICS</span>
+                  <h4 className={styles.visualTitle}>Studio Wireless Headphones</h4>
+                  <div className={styles.visualPriceRow}>
+                    <span className={styles.visualPrice}>₹14,999</span>
+                    <span className={styles.visualOldPrice}>₹19,999</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Secondary Product Thumbnails */}
+              <div className={styles.visualGrid}>
+                <div className={styles.visualThumbCard}>
+                  <img
+                    src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=400&q=80"
+                    alt="Nike Air Max Sneakers"
+                    className={styles.thumbImg}
+                  />
+                  <div className={styles.thumbInfo}>
+                    <span className={styles.thumbName}>Air Max Sneakers</span>
+                    <span className={styles.thumbPrice}>₹8,499</span>
+                  </div>
+                </div>
+
+                <div className={styles.visualThumbCard}>
+                  <img
+                    src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=400&q=80"
+                    alt="Ultra Fit Smartwatch"
+                    className={styles.thumbImg}
+                  />
+                  <div className={styles.thumbInfo}>
+                    <span className={styles.thumbName}>Ultra Fit Watch</span>
+                    <span className={styles.thumbPrice}>₹5,999</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Floating Glass Badges */}
+              <div className={`${styles.floatingTag} ${styles.tagTopLeft}`}>
+                <FiZap className={styles.tagIconZap} />
+                <div>
+                  <span className={styles.tagTitle}>Hot Season Deal</span>
+                  <span className={styles.tagSub}>Save up to 40% OFF</span>
+                </div>
+              </div>
+
+              <div className={`${styles.floatingTag} ${styles.tagBottomRight}`}>
+                <FiShield className={styles.tagIconShield} />
+                <div>
+                  <span className={styles.tagTitle}>Buyer Protection</span>
+                  <span className={styles.tagSub}>100% Genuine Certified</span>
+                </div>
               </div>
             </div>
           </div>
