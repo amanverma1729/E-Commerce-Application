@@ -13,7 +13,11 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOriginPatterns("http://localhost:5173", "http://localhost:5174", "http://localhost:3000", "http://127.0.0.1:5173", "http://127.0.0.1:5174", "http://127.0.0.1:3000")
+                        .allowedOriginPatterns(
+                            "http://localhost:5173", "http://localhost:5174", "http://localhost:3000",
+                            "http://127.0.0.1:5173", "http://127.0.0.1:5174", "http://127.0.0.1:3000",
+                            "https://*.vercel.app", "https://flash-tau-self.vercel.app", "*"
+                        )
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
                         .allowedHeaders("Authorization", "Content-Type", "X-Requested-With", "Accept", "Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers")
                         .exposedHeaders("Authorization", "Link", "X-Total-Count", "Access-Control-Allow-Origin", "Access-Control-Allow-Credentials")

@@ -60,7 +60,10 @@ const Home = () => {
       setProducts(list);
     } catch (err) {
       console.error("Error loading products:", err);
-      setError("Failed to connect to FLASH backend servers. Please make sure backend is running.");
+      setError(
+        err.response?.data?.message ||
+        "Failed to connect to FLASH backend servers. Please make sure backend is running and CORS is configured."
+      );
     } finally {
       setLoading(false);
     }
