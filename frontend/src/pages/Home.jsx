@@ -21,6 +21,9 @@ import {
   FiShoppingCart,
   FiHeart,
   FiCheck,
+  FiSliders,
+  FiX,
+  FiChevronDown,
 } from "react-icons/fi";
 import apiClient from "../api/apiClient";
 
@@ -68,23 +71,47 @@ const Home = () => {
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+  const [sortBy, setSortBy] = useState("relevance");
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalElements, setTotalElements] = useState(0);
   const [wishlist, setWishlist] = useState([]);
   const [addingCartId, setAddingCartId] = useState(null);
 
   const navigate = useNavigate();
   const userID = sessionStorage.getItem("userID") || localStorage.getItem("userID");
 
-  const fetchProducts = (currentPage = 0, search = "", category = "all") => {
+  const fetchProducts = (
+    currentPage = 0,
+    search = searchTerm,
+    category = selectedCategory,
+    minP = minPrice,
+    maxP = maxPrice,
+    sortVal = sortBy
+  ) => {
     setLoading(true);
-    let url = `/api/v1/products?page=${currentPage}&size=12&sort=id,desc`;
+    let sortParam = "id,desc";
+    if (sortVal === "price_asc") sortParam = "price,asc";
+    if (sortVal === "price_desc") sortParam = "price,desc";
+    if (sortVal === "newest") sortParam = "id,desc";
+    if (sortVal === "best_rated") sortParam = "stock,desc";
+
+    let url = `/api/v1/products?page=${currentPage}&size=12&sort=${sortParam}`;
     if (search) {
       url += `&search=${encodeURIComponent(search)}`;
     }
     if (category && category !== "all") {
       url += `&category=${encodeURIComponent(category)}`;
+    }
+    if (minP) {
+      url += `&minPrice=${encodeURIComponent(minP)}`;
+    }
+    if (maxP) {
+      url += `&maxPrice=${encodeURIComponent(maxP)}`;
     }
 
     apiClient
@@ -92,13 +119,41 @@ const Home = () => {
       .then((res) => {
         const data = res.data?.data || res.data;
         if (data && data.content) {
-          setProducts(data.content || []);
+          let content = data.content || [];
+          if (minP) content = content.filter((p) => p.price >= parseFloat(minP));
+          if (maxP) content = content.filter((p) => p.price <= parseFloat(maxP));
+          setProducts(content);
           setTotalPages(data.totalPages || 1);
+          setTotalElements(data.totalElements || content.length);
         } else if (Array.isArray(data)) {
-          setProducts(data);
+          let content = data;
+          if (search) {
+            const query = search.toLowerCase();
+            content = content.filter(
+              (p) =>
+                p.name?.toLowerCase().includes(query) ||
+                p.description?.toLowerCase().includes(query) ||
+                p.category?.toLowerCase().includes(query)
+            );
+          }
+          if (category && category !== "all") {
+            content = content.filter(
+              (p) => p.category?.toLowerCase() === category.toLowerCase()
+            );
+          }
+          if (minP) content = content.filter((p) => p.price >= parseFloat(minP));
+          if (maxP) content = content.filter((p) => p.price <= parseFloat(maxP));
+
+          if (sortVal === "price_asc") content.sort((a, b) => a.price - b.price);
+          if (sortVal === "price_desc") content.sort((a, b) => b.price - a.price);
+          if (sortVal === "best_rated") content.sort((a, b) => (b.stock || 0) - (a.stock || 0));
+
+          setProducts(content);
           setTotalPages(1);
+          setTotalElements(content.length);
         } else {
           setProducts([]);
+          setTotalElements(0);
         }
         setLoading(false);
       })
@@ -107,8 +162,31 @@ const Home = () => {
         apiClient
           .get("/api/v1/products/approved")
           .then((res) => {
-            const legacyData = res.data?.data || res.data;
-            setProducts(Array.isArray(legacyData) ? legacyData : []);
+            let legacyData = res.data?.data || res.data || [];
+            if (!Array.isArray(legacyData)) legacyData = [];
+
+            if (search) {
+              const query = search.toLowerCase();
+              legacyData = legacyData.filter(
+                (p) =>
+                  p.name?.toLowerCase().includes(query) ||
+                  p.description?.toLowerCase().includes(query) ||
+                  p.category?.toLowerCase().includes(query)
+              );
+            }
+            if (category && category !== "all") {
+              legacyData = legacyData.filter(
+                (p) => p.category?.toLowerCase() === category.toLowerCase()
+              );
+            }
+            if (minP) legacyData = legacyData.filter((p) => p.price >= parseFloat(minP));
+            if (maxP) legacyData = legacyData.filter((p) => p.price <= parseFloat(maxP));
+
+            if (sortVal === "price_asc") legacyData.sort((a, b) => a.price - b.price);
+            if (sortVal === "price_desc") legacyData.sort((a, b) => b.price - a.price);
+
+            setProducts(legacyData);
+            setTotalElements(legacyData.length);
             setLoading(false);
           })
           .catch(() => setLoading(false));
@@ -116,13 +194,31 @@ const Home = () => {
   };
 
   useEffect(() => {
-    fetchProducts(page, searchTerm, selectedCategory);
-  }, [page, selectedCategory]);
+    fetchProducts(page, searchTerm, selectedCategory, minPrice, maxPrice, sortBy);
+  }, [page, selectedCategory, sortBy]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     setPage(0);
-    fetchProducts(0, searchTerm, selectedCategory);
+    fetchProducts(0, searchTerm, selectedCategory, minPrice, maxPrice, sortBy);
+  };
+
+  const hasActiveFilters = Boolean(
+    searchTerm ||
+      selectedCategory !== "all" ||
+      minPrice ||
+      maxPrice ||
+      sortBy !== "relevance"
+  );
+
+  const handleClearAllFilters = () => {
+    setSearchTerm("");
+    setSelectedCategory("all");
+    setMinPrice("");
+    setMaxPrice("");
+    setSortBy("relevance");
+    setPage(0);
+    fetchProducts(0, "", "all", "", "", "relevance");
   };
 
   const handleCardClick = (productId) => {
@@ -287,6 +383,25 @@ const Home = () => {
     );
   };
 
+  const renderSkeletonGrid = () => (
+    <div className={styles.productGrid}>
+      {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
+        <div key={n} className={styles.skeletonCard}>
+          <div className={styles.skeletonImage} />
+          <div className={styles.skeletonContent}>
+            <div className={styles.skeletonLineShort} />
+            <div className={styles.skeletonLineTitle} />
+            <div className={styles.skeletonLineShort} />
+            <div className={styles.skeletonFooter}>
+              <div className={styles.skeletonPrice} />
+              <div className={styles.skeletonBtn} />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
   return (
     <div className={styles.homeWrapper}>
       {/* Hero Showcase Section */}
@@ -417,68 +532,265 @@ const Home = () => {
 
       {/* Interactive Search & Catalog Section */}
       <section id="catalog-section" className={styles.catalogSection}>
-        <div className={styles.sectionHeader}>
-          <h2 className={styles.sectionTitle}>
-            Discover <span className={styles.accentText}>Trending Products</span>
-          </h2>
-          <p className={styles.sectionDesc}>
-            Filter through our curated inventory with real-time search
-          </p>
+        <div className={styles.sectionHeaderRow}>
+          <div className={styles.sectionHeaderLeft}>
+            <h2 className={styles.sectionTitle}>
+              Explore <span className={styles.accentText}>Marketplace</span>
+            </h2>
+            <p className={styles.sectionDesc}>
+              Discover authentic products with real-time price & category filters
+            </p>
+          </div>
+
+          <div className={styles.resultBadge}>
+            <span>{loading ? "Searching..." : `${products.length} Products Found`}</span>
+          </div>
         </div>
 
-        {/* Live Search & Filter Controls */}
-        <form onSubmit={handleSearchSubmit} className={styles.controlsBar}>
-          <div className={styles.searchBox}>
-            <FiSearch className={styles.searchIcon} />
-            <input
-              type="text"
-              placeholder="Search products by name, description, category..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            {searchTerm && (
-              <button
-                type="button"
-                className={styles.clearSearchBtn}
-                onClick={() => {
-                  setSearchTerm("");
-                  fetchProducts(0, "", selectedCategory);
-                }}
-              >
-                ✕
-              </button>
-            )}
-          </div>
+        {/* Filter & Search Toolbar Container */}
+        <div className={styles.filterToolbar}>
+          {/* Top Row: Search Input & Mobile Trigger */}
+          <div className={styles.searchRow}>
+            <form onSubmit={handleSearchSubmit} className={styles.searchForm}>
+              <FiSearch className={styles.searchIcon} />
+              <input
+                type="text"
+                placeholder="Search by product name, description, category..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className={styles.searchInput}
+              />
+              {searchTerm && (
+                <button
+                  type="button"
+                  className={styles.clearSearchBtn}
+                  onClick={() => {
+                    setSearchTerm("");
+                    setPage(0);
+                    fetchProducts(0, "", selectedCategory, minPrice, maxPrice, sortBy);
+                  }}
+                >
+                  <FiX />
+                </button>
+              )}
+              <button type="submit" className={styles.searchBtn}>Search</button>
+            </form>
 
-          <div className={styles.categoryFilterScroll}>
             <button
               type="button"
-              className={`${styles.filterChip} ${
-                selectedCategory === "all" ? styles.activeChip : ""
-              }`}
-              onClick={() => setSelectedCategory("all")}
+              className={styles.mobileFilterBtn}
+              onClick={() => setShowMobileFilters(true)}
             >
-              All Products
+              <FiSliders />
+              <span>Filters & Sort</span>
+              {hasActiveFilters && <span className={styles.filterActiveDot} />}
             </button>
-            {["Electronics", "Fashion", "Home", "Books"].map((cat) => (
+          </div>
+
+          {/* Desktop Filter Controls Bar */}
+          <div className={styles.desktopControlsBar}>
+            {/* Category Pills */}
+            <div className={styles.categoryPills}>
               <button
                 type="button"
-                key={cat}
                 className={`${styles.filterChip} ${
-                  selectedCategory.toLowerCase() === cat.toLowerCase()
-                    ? styles.activeChip
-                    : ""
+                  selectedCategory === "all" ? styles.activeChip : ""
                 }`}
-                onClick={() => setSelectedCategory(cat)}
+                onClick={() => {
+                  setSelectedCategory("all");
+                  setPage(0);
+                  fetchProducts(0, searchTerm, "all", minPrice, maxPrice, sortBy);
+                }}
               >
-                {cat}
+                All Categories
               </button>
-            ))}
+              {["Electronics", "Fashion", "Home", "Books"].map((cat) => (
+                <button
+                  type="button"
+                  key={cat}
+                  className={`${styles.filterChip} ${
+                    selectedCategory.toLowerCase() === cat.toLowerCase()
+                      ? styles.activeChip
+                      : ""
+                  }`}
+                  onClick={() => {
+                    setSelectedCategory(cat);
+                    setPage(0);
+                    fetchProducts(0, searchTerm, cat, minPrice, maxPrice, sortBy);
+                  }}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+
+            {/* Right Controls: Price Range & Sort By */}
+            <div className={styles.rightControls}>
+              {/* Price Filter Form */}
+              <form
+                className={styles.priceFilterForm}
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  setPage(0);
+                  fetchProducts(0, searchTerm, selectedCategory, minPrice, maxPrice, sortBy);
+                }}
+              >
+                <span className={styles.priceLabel}>Price:</span>
+                <input
+                  type="number"
+                  placeholder="Min ₹"
+                  value={minPrice}
+                  onChange={(e) => setMinPrice(e.target.value)}
+                  className={styles.priceInput}
+                />
+                <span className={styles.priceDash}>-</span>
+                <input
+                  type="number"
+                  placeholder="Max ₹"
+                  value={maxPrice}
+                  onChange={(e) => setMaxPrice(e.target.value)}
+                  className={styles.priceInput}
+                />
+                <button type="submit" className={styles.priceApplyBtn}>Apply</button>
+              </form>
+
+              {/* Sort Select */}
+              <div className={styles.sortWrapper}>
+                <span className={styles.sortLabel}>Sort:</span>
+                <select
+                  value={sortBy}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setSortBy(val);
+                    setPage(0);
+                    fetchProducts(0, searchTerm, selectedCategory, minPrice, maxPrice, val);
+                  }}
+                  className={styles.sortSelect}
+                >
+                  <option value="relevance">Featured & Relevant</option>
+                  <option value="price_asc">Price: Low to High</option>
+                  <option value="price_desc">Price: High to Low</option>
+                  <option value="newest">Newest Arrivals</option>
+                  <option value="best_rated">Best Rated & Stock</option>
+                </select>
+              </div>
+
+              {/* Clear Filters Button */}
+              {hasActiveFilters && (
+                <button
+                  type="button"
+                  className={styles.clearAllBtn}
+                  onClick={handleClearAllFilters}
+                  title="Reset all filters"
+                >
+                  <FiRotateCcw />
+                  <span>Reset</span>
+                </button>
+              )}
+            </div>
           </div>
-        </form>
+        </div>
+
+        {/* Mobile Filter Drawer Modal */}
+        {showMobileFilters && (
+          <div className={styles.mobileDrawerOverlay} onClick={() => setShowMobileFilters(false)}>
+            <div className={styles.mobileDrawerContent} onClick={(e) => e.stopPropagation()}>
+              <div className={styles.drawerHeader}>
+                <h3>Filter & Sort Products</h3>
+                <button
+                  type="button"
+                  className={styles.closeDrawerBtn}
+                  onClick={() => setShowMobileFilters(false)}
+                >
+                  <FiX />
+                </button>
+              </div>
+
+              <div className={styles.drawerBody}>
+                {/* Category Group */}
+                <div className={styles.drawerGroup}>
+                  <label className={styles.drawerLabel}>Category</label>
+                  <select
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    className={styles.drawerSelect}
+                  >
+                    <option value="all">All Categories</option>
+                    <option value="Electronics">Electronics</option>
+                    <option value="Fashion">Fashion</option>
+                    <option value="Home">Home</option>
+                    <option value="Books">Books</option>
+                  </select>
+                </div>
+
+                {/* Sort By Group */}
+                <div className={styles.drawerGroup}>
+                  <label className={styles.drawerLabel}>Sort By</label>
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className={styles.drawerSelect}
+                  >
+                    <option value="relevance">Featured & Relevant</option>
+                    <option value="price_asc">Price: Low to High</option>
+                    <option value="price_desc">Price: High to Low</option>
+                    <option value="newest">Newest Arrivals</option>
+                    <option value="best_rated">Best Rated & Stock</option>
+                  </select>
+                </div>
+
+                {/* Price Range Group */}
+                <div className={styles.drawerGroup}>
+                  <label className={styles.drawerLabel}>Price Range (₹)</label>
+                  <div className={styles.drawerPriceRow}>
+                    <input
+                      type="number"
+                      placeholder="Min ₹"
+                      value={minPrice}
+                      onChange={(e) => setMinPrice(e.target.value)}
+                      className={styles.drawerInput}
+                    />
+                    <span>to</span>
+                    <input
+                      type="number"
+                      placeholder="Max ₹"
+                      value={maxPrice}
+                      onChange={(e) => setMaxPrice(e.target.value)}
+                      className={styles.drawerInput}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.drawerFooter}>
+                <button
+                  type="button"
+                  className={styles.drawerResetBtn}
+                  onClick={() => {
+                    handleClearAllFilters();
+                    setShowMobileFilters(false);
+                  }}
+                >
+                  Reset All
+                </button>
+                <button
+                  type="button"
+                  className={styles.drawerApplyBtn}
+                  onClick={() => {
+                    setPage(0);
+                    fetchProducts(0, searchTerm, selectedCategory, minPrice, maxPrice, sortBy);
+                    setShowMobileFilters(false);
+                  }}
+                >
+                  Apply Filters
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Featured Showcase Carousel */}
-        {products.length > 0 && selectedCategory === "all" && !searchTerm && (
+        {products.length > 0 && selectedCategory === "all" && !searchTerm && !minPrice && !maxPrice && (
           <div className={styles.featuredContainer}>
             <h3 className={styles.subHeading}>
               <FiZap className={styles.zapIcon} /> Featured Hot Picks
@@ -510,10 +822,7 @@ const Home = () => {
         {/* Filtered Grid View */}
         <div className={styles.gridContainer}>
           {loading ? (
-            <div className={styles.loadingBox}>
-              <div className={styles.spinner} />
-              <p>Loading live products...</p>
-            </div>
+            renderSkeletonGrid()
           ) : products.length > 0 ? (
             <>
               <div className={styles.productGrid}>
@@ -528,7 +837,9 @@ const Home = () => {
                   >
                     Previous
                   </button>
-                  <span className={styles.pageInfo}>Page {page + 1} of {totalPages}</span>
+                  <span className={styles.pageInfo}>
+                    Page {page + 1} of {totalPages}
+                  </span>
                   <button
                     className={styles.pageBtn}
                     disabled={page >= totalPages - 1}
@@ -543,16 +854,12 @@ const Home = () => {
             <div className={styles.emptyState}>
               <FiShoppingBag className={styles.emptyIcon} />
               <h3>No products found</h3>
-              <p>Try searching for a different keyword or select another category filter.</p>
+              <p>We couldn't find any products matching your active filter criteria.</p>
               <button
                 className={styles.resetBtn}
-                onClick={() => {
-                  setSearchTerm("");
-                  setSelectedCategory("all");
-                  fetchProducts(0, "", "all");
-                }}
+                onClick={handleClearAllFilters}
               >
-                Reset Filters
+                Clear All Filters
               </button>
             </div>
           )}
