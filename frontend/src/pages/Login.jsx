@@ -26,7 +26,11 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await apiClient.post("/api/v1/auth/login", formData);
+      const payload = {
+        email: formData.email.trim().toLowerCase(),
+        password: formData.password,
+      };
+      const response = await apiClient.post("/api/v1/auth/login", payload);
       const data = response.data.data || response.data;
       const { token, accessToken, refreshToken, type, id, email, role, message } = data;
 

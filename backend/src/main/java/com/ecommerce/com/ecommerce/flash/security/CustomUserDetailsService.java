@@ -29,24 +29,26 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        String cleanEmail = email != null ? email.trim().toLowerCase() : "";
+
         // 1. Search in Customer Users table
-        Optional<User> userOpt = userRepository.findByEmail(email);
+        Optional<User> userOpt = userRepository.findByEmail(cleanEmail);
         if (userOpt.isPresent()) {
             return UserPrincipal.create(userOpt.get());
         }
 
         // 2. Search in Product Owners (Sellers) table
-        Optional<ProductOwner> ownerOpt = productOwnerRepository.findByProductOwnerEmail(email);
+        Optional<ProductOwner> ownerOpt = productOwnerRepository.findByProductOwnerEmail(cleanEmail);
         if (ownerOpt.isPresent()) {
             return UserPrincipal.create(ownerOpt.get());
         }
 
         // 3. Search in Admins table
-        Optional<Admin> adminOpt = adminRepository.findByAdminEmail(email);
+        Optional<Admin> adminOpt = adminRepository.findByAdminEmail(cleanEmail);
         if (adminOpt.isPresent()) {
             return UserPrincipal.create(adminOpt.get());
         }
 
-        throw new UsernameNotFoundException("User not found with email: " + email);
+        throw new UsernameNotFoundException("User not found with email: " + cleanEmail);
     }
 }

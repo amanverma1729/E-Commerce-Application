@@ -53,16 +53,19 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public AuthResponse login(AuthRequest authRequest) {
+        String cleanEmail = authRequest.getEmail() != null ? authRequest.getEmail().trim().toLowerCase() : "";
+        String rawPassword = authRequest.getPassword() != null ? authRequest.getPassword().trim() : "";
+
         // Upgrade legacy plaintext password if matching
-        checkAndMigrateLegacyPassword(authRequest.getEmail(), authRequest.getPassword());
+        checkAndMigrateLegacyPassword(cleanEmail, rawPassword);
 
         Authentication authentication;
         try {
             authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(authRequest.getEmail(), authRequest.getPassword())
+                    new UsernamePasswordAuthenticationToken(cleanEmail, rawPassword)
             );
         } catch (Exception ex) {
-            log.warn("Authentication failed for email: {}", authRequest.getEmail());
+            log.warn("Authentication failed for email: {} - {}", cleanEmail, ex.getMessage());
             throw new BadCredentialsException("Invalid email or password");
         }
 
@@ -87,16 +90,19 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public AuthResponse registerUser(RegisterRequest request) {
-        if (userRepository.findByEmail(request.getEmail()).isPresent() ||
-            productOwnerRepository.findByProductOwnerEmail(request.getEmail()).isPresent() ||
-            adminRepository.findByAdminEmail(request.getEmail()).isPresent()) {
+        String cleanEmail = request.getEmail() != null ? request.getEmail().trim().toLowerCase() : "";
+        String rawPassword = request.getPassword() != null ? request.getPassword().trim() : "";
+
+        if (userRepository.findByEmail(cleanEmail).isPresent() ||
+            productOwnerRepository.findByProductOwnerEmail(cleanEmail).isPresent() ||
+            adminRepository.findByAdminEmail(cleanEmail).isPresent()) {
             throw new IllegalArgumentException("Email address is already in use");
         }
 
         User user = new User();
-        user.setName(request.getName());
-        user.setEmail(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setName(request.getName() != null ? request.getName().trim() : "");
+        user.setEmail(cleanEmail);
+        user.setPassword(passwordEncoder.encode(rawPassword));
         user.setPhoneNumber(request.getPhoneNumber());
         user.setAddress(request.getAddress());
         user.setAgreement(request.isAgreement());
@@ -105,28 +111,31 @@ public class AuthServiceImpl implements AuthService {
 
         User savedUser = userRepository.save(user);
 
-        AuthRequest authRequest = new AuthRequest(request.getEmail(), request.getPassword());
+        AuthRequest authRequest = new AuthRequest(cleanEmail, rawPassword);
         return login(authRequest);
     }
 
     @Override
     @Transactional
     public AuthResponse registerSeller(SellerRegisterRequest request) {
-        if (userRepository.findByEmail(request.getProductOwnerEmail()).isPresent() ||
-            productOwnerRepository.findByProductOwnerEmail(request.getProductOwnerEmail()).isPresent() ||
-            adminRepository.findByAdminEmail(request.getProductOwnerEmail()).isPresent()) {
+        String cleanEmail = request.getProductOwnerEmail() != null ? request.getProductOwnerEmail().trim().toLowerCase() : "";
+        String rawPassword = request.getProductOwnerPassword() != null ? request.getProductOwnerPassword().trim() : "";
+
+        if (userRepository.findByEmail(cleanEmail).isPresent() ||
+            productOwnerRepository.findByProductOwnerEmail(cleanEmail).isPresent() ||
+            adminRepository.findByAdminEmail(cleanEmail).isPresent()) {
             throw new IllegalArgumentException("Email address is already in use");
         }
 
         ProductOwner owner = new ProductOwner();
-        owner.setProductOwnerName(request.getProductOwnerName());
-        owner.setProductOwnerEmail(request.getProductOwnerEmail());
-        owner.setProductOwnerPassword(passwordEncoder.encode(request.getProductOwnerPassword()));
+        owner.setProductOwnerName(request.getProductOwnerName() != null ? request.getProductOwnerName().trim() : "");
+        owner.setProductOwnerEmail(cleanEmail);
+        owner.setProductOwnerPassword(passwordEncoder.encode(rawPassword));
         owner.setProductOwnerNumber(request.getProductOwnerNumber());
 
         productOwnerRepository.save(owner);
 
-        AuthRequest authRequest = new AuthRequest(request.getProductOwnerEmail(), request.getProductOwnerPassword());
+        AuthRequest authRequest = new AuthRequest(cleanEmail, rawPassword);
         return login(authRequest);
     }
 
