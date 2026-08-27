@@ -25,7 +25,8 @@ const OrdersPage = () => {
       axios
         .get(`http://localhost:9090/orders/user/${userIdParam}`)
         .then((res) => {
-          setOrders(res.data || []);
+          const list = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+          setOrders(list);
           setLoading(false);
         })
         .catch((err) => {
@@ -46,7 +47,7 @@ const OrdersPage = () => {
       setOrders(orders.filter((order) => order.id !== orderId));
     } catch (error) {
       console.error("Error cancelling order:", error);
-      toast.error("Failed to cancel order");
+      toast.error(error.response?.data?.message || "Failed to cancel order");
     }
   };
 
@@ -124,64 +125,75 @@ const OrdersPage = () => {
           </div>
         ) : (
           <div className={styles.ordersGrid}>
-            {orders.map((order) => (
-              <div key={order.id} className={styles.orderCard}>
-                <div className={styles.cardHeader}>
-                  <div className={styles.refInfo}>
-                    <span className={styles.orderRef}>Order #{order.id}</span>
-                    <span className={styles.orderCategory}>
-                      {order.product?.category || "Standard"}
-                    </span>
-                  </div>
-                  {getStatusBadge(order.status)}
-                </div>
+            {orders.map((order) => {
+              const productName = order.productNameAtPurchase || order.product?.name || "Product";
+              const unitPrice = order.unitPriceAtPurchase || order.product?.price || order.totalPrice;
+              const productImg = order.product?.productImageBase64;
+              const isEligibleForCancel = ["PLACED", "CONFIRMED", "PENDING", "In Cart"].includes(order.status);
 
-                <div className={styles.cardBody}>
-                  <div className={styles.thumbWrapper}>
-                    {order.product?.productImageBase64 ? (
-                      <img
-                        src={`data:image/jpeg;base64,${order.product.productImageBase64}`}
-                        alt={order.product?.name}
-                      />
-                    ) : (
-                      <div className={styles.thumbPlaceholder}>
-                        <FiPackage />
-                      </div>
-                    )}
-                  </div>
-
-                  <div className={styles.productDetails}>
-                    <h3 className={styles.productName}>{order.product?.name}</h3>
-                    <p className={styles.productDesc}>
-                      {order.product?.description
-                        ? order.product.description.slice(0, 70) + "..."
-                        : "No description provided."}
-                    </p>
-                    <div className={styles.priceRow}>
-                      <span className={styles.priceValue}>₹{order.product?.price}</span>
-                      <span className={styles.paymentMethodTag}>
-                        Method: {order.paymentMethod || "COD"}
+              return (
+                <div key={order.id} className={styles.orderCard}>
+                  <div className={styles.cardHeader}>
+                    <div className={styles.refInfo}>
+                      <span className={styles.orderRef}>Order #{order.id}</span>
+                      <span className={styles.orderCategory}>
+                        {order.product?.category || "Standard"}
                       </span>
                     </div>
+                    {getStatusBadge(order.status)}
+                  </div>
+
+                  <div className={styles.cardBody}>
+                    <div className={styles.thumbWrapper}>
+                      {productImg ? (
+                        <img
+                          src={`data:image/jpeg;base64,${productImg}`}
+                          alt={productName}
+                        />
+                      ) : (
+                        <div className={styles.thumbPlaceholder}>
+                          <FiPackage />
+                        </div>
+                      )}
+                    </div>
+
+                    <div className={styles.productDetails}>
+                      <h3 className={styles.productName}>{productName}</h3>
+                      <p className={styles.productDesc}>
+                        {order.product?.description
+                          ? order.product.description.slice(0, 70) + "..."
+                          : "No description provided."}
+                      </p>
+                      <div className={styles.priceRow}>
+                        <span className={styles.priceValue}>₹{order.totalPrice || unitPrice}</span>
+                        <span className={styles.paymentMethodTag}>
+                          Method: {order.paymentMethod || "COD"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className={styles.cardFooter}>
+                    {isEligibleForCancel && (
+                      <button
+                        className={styles.cancelBtn}
+                        onClick={() => handleRemoveFromOrder(order.id)}
+                      >
+                        <FiXCircle /> Cancel Order
+                      </button>
+                    )}
+                    {order.product?.id && (
+                      <button
+                        className={styles.viewBtn}
+                        onClick={() => navigate(`/product/${order.product.id}`)}
+                      >
+                        View Product <FiArrowRight />
+                      </button>
+                    )}
                   </div>
                 </div>
-
-                <div className={styles.cardFooter}>
-                  <button
-                    className={styles.cancelBtn}
-                    onClick={() => handleRemoveFromOrder(order.id)}
-                  >
-                    <FiXCircle /> Cancel Order
-                  </button>
-                  <button
-                    className={styles.viewBtn}
-                    onClick={() => navigate(`/product/${order.product?.id}`)}
-                  >
-                    View Product <FiArrowRight />
-                  </button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
@@ -190,4 +202,3 @@ const OrdersPage = () => {
 };
 
 export default OrdersPage;
-

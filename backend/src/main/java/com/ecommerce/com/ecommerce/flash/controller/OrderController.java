@@ -68,7 +68,7 @@ public class OrderController {
         return ResponseEntity.ok(ApiResponse.success("User orders retrieved successfully", response));
     }
 
-    @GetMapping("/seller/{productOwnerId}")
+    @GetMapping({"/seller/{productOwnerId}", "/owner/{productOwnerId}"})
     @PreAuthorize("hasRole('SELLER') or hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<List<OrderResponse>>> getOrdersByProductOwnerId(@PathVariable Long productOwnerId) {
         List<OrderResponse> response = orderService.getOrdersByProductOwnerId(productOwnerId);
