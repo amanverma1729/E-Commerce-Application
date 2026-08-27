@@ -19,8 +19,49 @@ import {
   FiHeadphones,
   FiEye,
   FiShoppingCart,
+  FiHeart,
 } from "react-icons/fi";
 import apiClient from "../api/apiClient";
+
+const FALLBACK_IMAGES = {
+  electronics: [
+    "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1546868871-7041f2a55e12?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1583394838336-acd977736f90?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1608231387042-66d1773070a5?auto=format&fit=crop&w=600&q=80",
+  ],
+  fashion: [
+    "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1576995853123-5a10305d93c0?auto=format&fit=crop&w=600&q=80",
+  ],
+  home: [
+    "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=600&q=80",
+  ],
+  books: [
+    "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=600&q=80",
+  ],
+  default: [
+    "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=600&q=80",
+  ],
+};
+
+const getProductImageUrl = (product) => {
+  if (product.productImageBase64) {
+    return `data:image/jpeg;base64,${product.productImageBase64}`;
+  }
+  const catKey = (product.category || "default").toLowerCase();
+  const list = FALLBACK_IMAGES[catKey] || FALLBACK_IMAGES.default;
+  const index = Math.abs(product.id || 0) % list.length;
+  return list[index];
+};
 
 const Home = () => {
   const [products, setProducts] = useState([]);
@@ -29,6 +70,7 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
+  const [wishlist, setWishlist] = useState([]);
 
   const navigate = useNavigate();
   const userID = sessionStorage.getItem("userID") || localStorage.getItem("userID");
@@ -60,7 +102,6 @@ const Home = () => {
       })
       .catch((err) => {
         console.error("Error fetching products:", err);
-        // Fallback to legacy endpoint if required
         apiClient
           .get("/api/v1/products/approved")
           .then((res) => {
@@ -82,20 +123,23 @@ const Home = () => {
     fetchProducts(0, searchTerm, selectedCategory);
   };
 
-  const uniqueCategories = [
-    ...new Set(
-      products
-        .map((p) => p.category?.trim())
-        .filter(Boolean)
-    ),
-  ];
-
   const handleCardClick = (productId) => {
     if (userID) {
       navigate(`/products/${productId}`);
     } else {
       toast.error("Please log in to view product details");
       navigate("/login");
+    }
+  };
+
+  const handleWishlistToggle = (e, productId) => {
+    e.stopPropagation();
+    if (wishlist.includes(productId)) {
+      setWishlist(wishlist.filter((id) => id !== productId));
+      toast("Removed from wishlist", { icon: "💔" });
+    } else {
+      setWishlist([...wishlist, productId]);
+      toast.success("Saved to your wishlist!");
     }
   };
 
@@ -114,7 +158,6 @@ const Home = () => {
       toast.success(`${product.name} added to cart!`);
     } catch (err) {
       console.error("Error adding to cart:", err);
-      // Fallback order creation if legacy cart endpoint is checked
       try {
         const orderPayload = {
           product: { id: product.id },
@@ -130,88 +173,102 @@ const Home = () => {
     }
   };
 
-  const renderProductCard = (product) => (
-    <div
-      key={product.id}
-      className={styles.productCard}
-      onClick={() => handleCardClick(product.id)}
-    >
-      <div className={styles.imageContainer}>
-        {product.productImageBase64 ? (
+  const renderProductCard = (product) => {
+    const isWishlisted = wishlist.includes(product.id);
+    const reviewCount = 45 + ((product.id * 17) % 180);
+    const ratingValue = (4.3 + ((product.id * 7) % 7) / 10).toFixed(1);
+    const discountPct = 15 + ((product.id * 3) % 12);
+    const originalPrice = Math.round(product.price * (1 + discountPct / 100));
+
+    return (
+      <div
+        key={product.id}
+        className={styles.productCard}
+        onClick={() => handleCardClick(product.id)}
+      >
+        <div className={styles.imageContainer}>
           <img
-            src={`data:image/jpeg;base64,${product.productImageBase64}`}
+            src={getProductImageUrl(product)}
             alt={product.name}
             className={styles.productImage}
             onError={(e) => {
-              e.target.style.display = "none";
-              e.target.nextSibling.style.display = "flex";
+              e.target.src = FALLBACK_IMAGES.default[0];
             }}
           />
-        ) : null}
-        <div
-          className={styles.placeholderBox}
-          style={{ display: product.productImageBase64 ? "none" : "flex" }}
-        >
-          <FiShoppingBag className={styles.placeholderIcon} />
-          <span>{product.name}</span>
+
+          <div className={styles.badgeRow}>
+            <span className={styles.categoryBadge}>{product.category || "General"}</span>
+            <button
+              type="button"
+              className={`${styles.wishlistBtn} ${isWishlisted ? styles.wishlistActive : ""}`}
+              title="Save to Wishlist"
+              onClick={(e) => handleWishlistToggle(e, product.id)}
+            >
+              <FiHeart />
+            </button>
+          </div>
+
+          <div className={styles.discountBadge}>-{discountPct}% OFF</div>
+
+          <div className={styles.overlayActions}>
+            <button
+              className={styles.actionBtn}
+              title="Quick View Details"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleCardClick(product.id);
+              }}
+            >
+              <FiEye />
+            </button>
+          </div>
         </div>
 
-        <div className={styles.badgeRow}>
-          <span className={styles.categoryBadge}>{product.category || "General"}</span>
-          <span className={styles.discountBadge}>-15% OFF</span>
-        </div>
+        <div className={styles.cardContent}>
+          <div className={styles.brandRow}>
+            <span className={styles.brandName}>FLASH Verified</span>
+            <span
+              className={`${styles.stockStatus} ${
+                product.stock > 0 ? styles.inStock : styles.outOfStock
+              }`}
+            >
+              {product.stock > 0 ? `${product.stock} in stock` : "Out of stock"}
+            </span>
+          </div>
 
-        <div className={styles.overlayActions}>
-          <button
-            className={styles.actionBtn}
-            title="Quick View"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleCardClick(product.id);
-            }}
-          >
-            <FiEye />
-          </button>
-          <button
-            className={styles.actionBtnPrimary}
-            title="Add to Cart"
-            onClick={(e) => handleQuickAddToCart(e, product)}
-          >
-            <FiShoppingCart />
-          </button>
+          <h3 className={styles.productTitle}>{product.name}</h3>
+
+          <div className={styles.ratingRow}>
+            <div className={styles.stars}>
+              <FiStar className={styles.starFill} />
+              <FiStar className={styles.starFill} />
+              <FiStar className={styles.starFill} />
+              <FiStar className={styles.starFill} />
+              <FiStar className={styles.starHalf} />
+            </div>
+            <span className={styles.ratingValue}>{ratingValue}</span>
+            <span className={styles.reviewCount}>({reviewCount})</span>
+          </div>
+
+          <div className={styles.cardFooter}>
+            <div className={styles.priceGroup}>
+              <span className={styles.currentPrice}>₹{product.price.toLocaleString("en-IN")}</span>
+              <span className={styles.originalPrice}>₹{originalPrice.toLocaleString("en-IN")}</span>
+            </div>
+
+            <button
+              className={styles.addToCartBtn}
+              title="Add to Cart"
+              onClick={(e) => handleQuickAddToCart(e, product)}
+            >
+              <FiShoppingCart />
+              <span>Add</span>
+            </button>
+          </div>
         </div>
       </div>
-
-      <div className={styles.cardContent}>
-        <div className={styles.ratingRow}>
-          <div className={styles.stars}>
-            <FiStar className={styles.starFill} />
-            <FiStar className={styles.starFill} />
-            <FiStar className={styles.starFill} />
-            <FiStar className={styles.starFill} />
-            <FiStar className={styles.starHalf} />
-          </div>
-          <span className={styles.ratingValue}>4.8</span>
-        </div>
-
-        <h3 className={styles.productTitle}>{product.name}</h3>
-
-        <div className={styles.cardFooter}>
-          <div className={styles.priceContainer}>
-            <span className={styles.currentPrice}>₹{product.price}</span>
-            <span className={styles.originalPrice}>₹{Math.round(product.price * 1.18)}</span>
-          </div>
-          <span
-            className={`${styles.stockStatus} ${
-              product.stock > 0 ? styles.inStock : styles.outOfStock
-            }`}
-          >
-            {product.stock > 0 ? `${product.stock} left` : "Out of stock"}
-          </span>
-        </div>
-      </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className={styles.homeWrapper}>
