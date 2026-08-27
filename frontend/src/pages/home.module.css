@@ -894,74 +894,169 @@
   cursor: pointer;
 }
 
-/* Skeleton Shimmer Loading */
+/* High-Fidelity Skeleton Loaders */
 .skeletonCard {
-  background: rgba(15, 21, 35, 0.7);
+  background: rgba(15, 21, 35, 0.75);
   border-radius: var(--radius-lg);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   overflow: hidden;
-  height: 380px;
   display: flex;
   flex-direction: column;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
-.skeletonImage {
+.skeletonImageContainer {
+  position: relative;
   width: 100%;
-  height: 220px;
+  height: 230px;
   background: linear-gradient(90deg, rgba(255, 255, 255, 0.03) 25%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.03) 75%);
   background-size: 400% 100%;
-  animation: shimmer 1.5s infinite;
+  animation: shimmer 1.6s infinite ease-in-out;
 }
 
-.skeletonContent {
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  flex: 1;
-}
-
-.skeletonLineShort {
-  width: 40%;
-  height: 14px;
-  border-radius: var(--radius-sm);
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.03) 25%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.03) 75%);
-  background-size: 400% 100%;
-  animation: shimmer 1.5s infinite;
-}
-
-.skeletonLineTitle {
-  width: 85%;
-  height: 20px;
-  border-radius: var(--radius-sm);
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.03) 25%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.03) 75%);
-  background-size: 400% 100%;
-  animation: shimmer 1.5s infinite;
-}
-
-.skeletonFooter {
-  margin-top: auto;
+.skeletonBadgeRow {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  right: 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.skeletonPrice {
-  width: 35%;
-  height: 22px;
-  border-radius: var(--radius-sm);
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.03) 25%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.03) 75%);
-  background-size: 400% 100%;
-  animation: shimmer 1.5s infinite;
+.skeletonCategoryBadge {
+  width: 80px;
+  height: 24px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.12);
+  animation: shimmer 1.6s infinite ease-in-out;
 }
 
-.skeletonBtn {
-  width: 30%;
+.skeletonWishlistBtn {
+  width: 32px;
   height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  animation: shimmer 1.6s infinite ease-in-out;
+}
+
+.skeletonDiscountBadge {
+  position: absolute;
+  bottom: 12px;
+  left: 14px;
+  width: 65px;
+  height: 20px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.1);
+  animation: shimmer 1.6s infinite ease-in-out;
+}
+
+.skeletonCardContent {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+.skeletonBrandRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.skeletonBrandName {
+  width: 90px;
+  height: 14px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.08);
+  animation: shimmer 1.6s infinite ease-in-out;
+}
+
+.skeletonStockStatus {
+  width: 70px;
+  height: 14px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.08);
+  animation: shimmer 1.6s infinite ease-in-out;
+}
+
+.skeletonTitleLine1 {
+  width: 90%;
+  height: 18px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.09);
+  animation: shimmer 1.6s infinite ease-in-out;
+}
+
+.skeletonTitleLine2 {
+  width: 60%;
+  height: 18px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.09);
+  animation: shimmer 1.6s infinite ease-in-out;
+}
+
+.skeletonRatingRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.skeletonStars {
+  width: 75px;
+  height: 14px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.08);
+  animation: shimmer 1.6s infinite ease-in-out;
+}
+
+.skeletonReviewCount {
+  width: 40px;
+  height: 14px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.06);
+  animation: shimmer 1.6s infinite ease-in-out;
+}
+
+.skeletonCardFooter {
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.skeletonPriceGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.skeletonCurrentPrice {
+  width: 70px;
+  height: 22px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.12);
+  animation: shimmer 1.6s infinite ease-in-out;
+}
+
+.skeletonOriginalPrice {
+  width: 45px;
+  height: 16px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.06);
+  animation: shimmer 1.6s infinite ease-in-out;
+}
+
+.skeletonAddToCartBtn {
+  width: 75px;
+  height: 36px;
   border-radius: var(--radius-md);
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.03) 25%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.03) 75%);
-  background-size: 400% 100%;
-  animation: shimmer 1.5s infinite;
+  background: rgba(99, 102, 241, 0.25);
+  animation: shimmer 1.6s infinite ease-in-out;
 }
 
 @keyframes shimmer {
@@ -971,6 +1066,118 @@
   100% {
     background-position: 200% 0;
   }
+}
+
+/* API Error State Card */
+.errorState {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px 30px;
+  background: rgba(15, 21, 35, 0.7);
+  border: 1px solid rgba(244, 63, 94, 0.25);
+  border-radius: var(--radius-xl);
+  backdrop-filter: blur(16px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 540px;
+  margin: 20px auto;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+}
+
+.errorIconWrapper {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(244, 63, 94, 0.12);
+  border: 1px solid rgba(244, 63, 94, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.errorIcon {
+  font-size: 2rem;
+  color: #f43f5e;
+}
+
+.errorState h3 {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 8px;
+}
+
+.errorState p {
+  color: #9ca3af;
+  font-size: 0.95rem;
+  max-width: 420px;
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+.retryBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 26px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, #f43f5e 0%, #be123c 100%);
+  border: none;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.92rem;
+  cursor: pointer;
+  box-shadow: 0 4px 18px rgba(244, 63, 94, 0.4);
+  transition: all 0.25s ease;
+}
+
+.retryBtn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(244, 63, 94, 0.6);
+}
+
+.retryBtn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.retryIcon {
+  font-size: 1.1rem;
+}
+
+.spinningIcon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Slow Network Warning Banner */
+.slowNetworkBanner {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 20px;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: var(--radius-full);
+  color: #fbbf24;
+  font-size: 0.88rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  animation: fadeIn 0.3s ease;
+}
+
+.clockIcon {
+  font-size: 1.1rem;
 }
 
 /* =============================================================================

@@ -24,6 +24,9 @@ import {
   FiSliders,
   FiX,
   FiChevronDown,
+  FiAlertCircle,
+  FiRefreshCw,
+  FiClock,
 } from "react-icons/fi";
 import apiClient from "../api/apiClient";
 
@@ -76,6 +79,9 @@ const Home = () => {
   const [sortBy, setSortBy] = useState("relevance");
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [apiError, setApiError] = useState(null);
+  const [isSlowNetwork, setIsSlowNetwork] = useState(false);
+  const [isRetrying, setIsRetrying] = useState(false);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [totalElements, setTotalElements] = useState(0);
@@ -94,6 +100,13 @@ const Home = () => {
     sortVal = sortBy
   ) => {
     setLoading(true);
+    setApiError(null);
+    setIsSlowNetwork(false);
+
+    const slowTimer = setTimeout(() => {
+      setIsSlowNetwork(true);
+    }, 2500);
+
     let sortParam = "id,desc";
     if (sortVal === "price_asc") sortParam = "price,asc";
     if (sortVal === "price_desc") sortParam = "price,desc";
@@ -117,6 +130,7 @@ const Home = () => {
     apiClient
       .get(url)
       .then((res) => {
+        clearTimeout(slowTimer);
         const data = res.data?.data || res.data;
         if (data && data.content) {
           let content = data.content || [];
@@ -156,12 +170,14 @@ const Home = () => {
           setTotalElements(0);
         }
         setLoading(false);
+        setIsRetrying(false);
       })
       .catch((err) => {
-        console.error("Error fetching products:", err);
+        console.error("Error fetching products, trying fallback endpoint:", err);
         apiClient
           .get("/api/v1/products/approved")
           .then((res) => {
+            clearTimeout(slowTimer);
             let legacyData = res.data?.data || res.data || [];
             if (!Array.isArray(legacyData)) legacyData = [];
 
@@ -188,8 +204,15 @@ const Home = () => {
             setProducts(legacyData);
             setTotalElements(legacyData.length);
             setLoading(false);
+            setIsRetrying(false);
           })
-          .catch(() => setLoading(false));
+          .catch((fallbackErr) => {
+            clearTimeout(slowTimer);
+            console.error("Fallback products fetch error:", fallbackErr);
+            setApiError("Failed to fetch product catalog from backend server.");
+            setLoading(false);
+            setIsRetrying(false);
+          });
       });
   };
 
@@ -387,18 +410,59 @@ const Home = () => {
     <div className={styles.productGrid}>
       {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
         <div key={n} className={styles.skeletonCard}>
-          <div className={styles.skeletonImage} />
-          <div className={styles.skeletonContent}>
-            <div className={styles.skeletonLineShort} />
-            <div className={styles.skeletonLineTitle} />
-            <div className={styles.skeletonLineShort} />
-            <div className={styles.skeletonFooter}>
-              <div className={styles.skeletonPrice} />
-              <div className={styles.skeletonBtn} />
+          <div className={styles.skeletonImageContainer}>
+            <div className={styles.skeletonBadgeRow}>
+              <div className={styles.skeletonCategoryBadge} />
+              <div className={styles.skeletonWishlistBtn} />
+            </div>
+            <div className={styles.skeletonDiscountBadge} />
+          </div>
+
+          <div className={styles.skeletonCardContent}>
+            <div className={styles.skeletonBrandRow}>
+              <div className={styles.skeletonBrandName} />
+              <div className={styles.skeletonStockStatus} />
+            </div>
+
+            <div className={styles.skeletonTitleLine1} />
+            <div className={styles.skeletonTitleLine2} />
+
+            <div className={styles.skeletonRatingRow}>
+              <div className={styles.skeletonStars} />
+              <div className={styles.skeletonReviewCount} />
+            </div>
+
+            <div className={styles.skeletonCardFooter}>
+              <div className={styles.skeletonPriceGroup}>
+                <div className={styles.skeletonCurrentPrice} />
+                <div className={styles.skeletonOriginalPrice} />
+              </div>
+              <div className={styles.skeletonAddToCartBtn} />
             </div>
           </div>
         </div>
       ))}
+    </div>
+  );
+
+  const renderErrorState = () => (
+    <div className={styles.errorState}>
+      <div className={styles.errorIconWrapper}>
+        <FiAlertCircle className={styles.errorIcon} />
+      </div>
+      <h3>Unable to Connect to Product Catalog</h3>
+      <p>We encountered a network timeout or the server is temporarily unreachable.</p>
+      <button
+        className={styles.retryBtn}
+        disabled={isRetrying}
+        onClick={() => {
+          setIsRetrying(true);
+          fetchProducts(page, searchTerm, selectedCategory, minPrice, maxPrice, sortBy);
+        }}
+      >
+        <FiRefreshCw className={`${styles.retryIcon} ${isRetrying ? styles.spinningIcon : ""}`} />
+        <span>{isRetrying ? "Reconnecting..." : "Retry Connection"}</span>
+      </button>
     </div>
   );
 
@@ -821,8 +885,17 @@ const Home = () => {
 
         {/* Filtered Grid View */}
         <div className={styles.gridContainer}>
+          {isSlowNetwork && loading && (
+            <div className={styles.slowNetworkBanner}>
+              <FiClock className={styles.clockIcon} />
+              <span>Network response is taking longer than usual... Loading live products.</span>
+            </div>
+          )}
+
           {loading ? (
             renderSkeletonGrid()
+          ) : apiError ? (
+            renderErrorState()
           ) : products.length > 0 ? (
             <>
               <div className={styles.productGrid}>
