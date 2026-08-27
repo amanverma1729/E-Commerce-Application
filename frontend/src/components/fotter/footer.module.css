@@ -203,19 +203,43 @@
   color: var(--text-dim);
 }
 
-@media (max-width: 900px) {
-  .linksGrid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 600px) {
-  .linksGrid {
-    grid-template-columns: 1fr;
-  }
+@media (max-width: 992px) {
   .topSection {
     flex-direction: column;
     align-items: flex-start;
   }
+  .brandCol, .newsletterCol {
+    max-width: 100%;
+    width: 100%;
+  }
+  .linksGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
 }
+
+@media (max-width: 600px) {
+  .footerContainer {
+    padding: 40px 0 24px;
+  }
+  .linksGrid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .subscribeForm {
+    flex-direction: column;
+  }
+  .subscribeForm button {
+    width: 100%;
+    justify-content: center;
+    min-height: 44px;
+  }
+  .bottomSection {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 16px;
+  }
+}
+
 

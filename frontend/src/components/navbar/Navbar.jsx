@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import style from "./navbar.module.css";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -14,10 +14,13 @@ import {
   FiHome,
   FiUserPlus,
   FiGrid,
+  FiMenu,
+  FiX,
 } from "react-icons/fi";
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [loggedIn, setLoggedIn] = useState({
     userID: sessionStorage.getItem("userID"),
     productOwnerId: sessionStorage.getItem("productOwnerId"),
@@ -41,6 +44,7 @@ const Navbar = () => {
       productOwnerId: sessionStorage.getItem("productOwnerId"),
       adminId: sessionStorage.getItem("adminId"),
     });
+    setMobileMenuOpen(false);
   }, [location]);
 
   const logout = () => {
@@ -55,6 +59,7 @@ const Navbar = () => {
     }
     toast.success("Logged out successfully");
     setLoggedIn({ userID: null, productOwnerId: null, adminId: null });
+    setMobileMenuOpen(false);
     navigate("/");
   };
 
@@ -75,7 +80,7 @@ const Navbar = () => {
     <nav className={`${style.navContainer} ${scrolled ? style.scrolledNav : ""}`}>
       <div className={style.navInner}>
         {/* Brand Logo */}
-        <Link to="/" className={style.brandLogo}>
+        <Link to="/" className={style.brandLogo} onClick={() => setMobileMenuOpen(false)}>
           <div className={style.logoBadge}>
             <FiZap className={style.zapIcon} />
           </div>
@@ -84,7 +89,7 @@ const Navbar = () => {
           </span>
         </Link>
 
-        {/* Center / Primary Navigation Links */}
+        {/* Desktop Navigation Links */}
         <div className={style.navCenter}>
           <Link
             to="/"
@@ -168,7 +173,7 @@ const Navbar = () => {
           )}
         </div>
 
-        {/* Right Navigation & Auth Actions */}
+        {/* Desktop Right Auth Actions */}
         <div className={style.navRight}>
           {loggedIn.productOwnerId || loggedIn.userID || loggedIn.adminId ? (
             <div className={style.userMenu}>
@@ -199,10 +204,169 @@ const Navbar = () => {
             </div>
           )}
         </div>
+
+        {/* Mobile Hamburger Toggle Button */}
+        <button
+          className={style.hamburgerBtn}
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label="Toggle mobile menu"
+        >
+          {mobileMenuOpen ? <FiX /> : <FiMenu />}
+        </button>
       </div>
+
+      {/* Mobile Drawer Menu Overlay */}
+      {mobileMenuOpen && (
+        <div
+          className={style.mobileDrawerOverlay}
+          onClick={() => setMobileMenuOpen(false)}
+        >
+          <div
+            className={style.mobileDrawerContent}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className={style.mobileDrawerHeader}>
+              <div className={style.logoRow}>
+                <div className={style.logoBadge}>
+                  <FiZap className={style.zapIcon} />
+                </div>
+                <span className={style.logoText}>FLASH.</span>
+              </div>
+              <button
+                className={style.closeDrawerBtn}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <FiX />
+              </button>
+            </div>
+
+            <div className={style.mobileDrawerBody}>
+              <Link
+                to="/"
+                className={style.mobileNavLink}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <FiHome />
+                <span>Home</span>
+              </Link>
+
+              {loggedIn.userID && (
+                <>
+                  <Link
+                    to={`/orderpage/${loggedIn.userID}`}
+                    className={style.mobileNavLink}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <FiPackage />
+                    <span>My Orders</span>
+                  </Link>
+                  <Link
+                    to={`/cartpage/${loggedIn.userID}`}
+                    className={style.mobileNavLink}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <FiShoppingCart />
+                    <span>My Cart</span>
+                  </Link>
+                </>
+              )}
+
+              {loggedIn.productOwnerId && (
+                <>
+                  <Link
+                    to="/productlist"
+                    className={style.mobileNavLink}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <FiGrid />
+                    <span>My Products</span>
+                  </Link>
+                  <Link
+                    to="/addproduct"
+                    className={style.mobileNavLink}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <FiPlusSquare />
+                    <span>Add Product</span>
+                  </Link>
+                  <Link
+                    to="/manageorders"
+                    className={style.mobileNavLink}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <FiPackage />
+                    <span>Manage Orders</span>
+                  </Link>
+                </>
+              )}
+
+              {loggedIn.adminId && (
+                <Link
+                  to="/admindashboard"
+                  className={style.mobileNavLink}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <FiShield />
+                  <span>Admin Portal</span>
+                </Link>
+              )}
+
+              <div className={style.mobileDrawerDivider} />
+
+              {loggedIn.productOwnerId || loggedIn.userID || loggedIn.adminId ? (
+                <div className={style.mobileUserMenu}>
+                  <div className={style.mobileUserInfo}>
+                    <span className={style.roleTag}>{roleBadge}</span>
+                    <Link
+                      to={profileRoute}
+                      className={style.mobileProfileBtn}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <FiUser />
+                      <span>View Profile</span>
+                    </Link>
+                  </div>
+                  <button onClick={logout} className={style.mobileLogoutBtn}>
+                    <FiLogOut />
+                    <span>Logout Account</span>
+                  </button>
+                </div>
+              ) : (
+                <div className={style.mobileAuthBtns}>
+                  <Link
+                    to="/login"
+                    className={style.mobileLoginBtn}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <FiLogIn />
+                    <span>Sign In</span>
+                  </Link>
+                  <Link
+                    to="/SignupProductOwner"
+                    className={style.mobileSellerBtn}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <FiZap />
+                    <span>Become a Seller</span>
+                  </Link>
+                  <Link
+                    to="/signup"
+                    className={style.mobileSignupBtn}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <FiUserPlus />
+                    <span>Register Account</span>
+                  </Link>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </nav>
   );
 };
 
 export default Navbar;
+
 

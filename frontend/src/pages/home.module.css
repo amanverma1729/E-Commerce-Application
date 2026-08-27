@@ -2083,41 +2083,58 @@
 }
 
 /* =============================================================================
-   8. RESPONSIVE BREAKPOINTS
+   8. RESPONSIVE BREAKPOINTS (1440px, 1200px, 992px, 768px, 480px, 375px)
    ============================================================================= */
-@media (max-width: 1200px) {
-  .productGrid {
-    grid-template-columns: repeat(3, 1fr);
+
+/* --- 1440px Desktop --- */
+@media (max-width: 1440px) {
+  .heroSection, .filterContainer, .marketplaceSection, .trustBanner {
+    max-width: 1320px;
   }
 }
 
-@media (max-width: 1024px) {
+/* --- 1200px Desktop --- */
+@media (max-width: 1200px) {
+  .heroInner {
+    gap: 36px;
+  }
+  .heroTitle {
+    font-size: 2.8rem;
+  }
+  .productGrid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
+  }
+  .benefitsGrid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+}
+
+/* --- 992px Tablet --- */
+@media (max-width: 992px) {
   .heroInner {
     grid-template-columns: 1fr;
-    gap: 44px;
+    gap: 40px;
     text-align: center;
   }
-
   .heroLeft {
     align-items: center;
   }
-
   .heroSub {
     margin-left: auto;
     margin-right: auto;
   }
-
   .heroActions {
     justify-content: center;
   }
-
+  .metricsGrid {
+    justify-content: center;
+  }
   .heroRight {
     max-width: 580px;
     margin: 0 auto;
   }
-}
-
-@media (max-width: 900px) {
   .desktopControlsBar {
     display: none;
   }
@@ -2125,83 +2142,239 @@
     display: flex;
   }
   .productGrid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
   }
   .trustGrid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 22px;
+    gap: 20px;
   }
   .benefitsGrid {
     grid-template-columns: repeat(2, 1fr);
     gap: 18px;
   }
-  .metricsGrid {
-    gap: 28px;
-    padding: 16px 28px;
-  }
 }
 
-@media (max-width: 600px) {
+/* --- 768px Tablet --- */
+@media (max-width: 768px) {
   .heroSection {
-    padding: 50px 16px 40px;
+    padding: 50px 20px 36px;
   }
   .heroTitle {
-    font-size: 2.1rem;
+    font-size: 2.4rem;
   }
   .heroSub {
-    font-size: 0.98rem;
-  }
-  .heroActions {
-    flex-direction: column;
-    width: 100%;
-  }
-  .heroPrimaryBtn, .heroSecondaryBtn {
-    width: 100%;
-    justify-content: center;
-  }
-  .tagTopLeft, .tagBottomRight {
-    display: none;
-  }
-  .mainVisualCard {
-    height: 210px;
-  }
-  .visualGrid {
-    grid-template-columns: 1fr;
+    font-size: 1rem;
+    max-width: 95%;
   }
   .metricsGrid {
-    flex-direction: column;
-    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    padding: 16px 24px;
     border-radius: var(--radius-lg);
-    padding: 20px;
-    width: 100%;
   }
   .metricDivider {
     display: none;
   }
   .productGrid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
   }
-  .trustGrid {
-    grid-template-columns: 1fr;
-    padding: 24px 18px;
+  .imageContainer {
+    height: 190px;
   }
-  .benefitsGrid {
-    grid-template-columns: 1fr;
+  .cardContent {
+    padding: 14px;
+  }
+  .productTitle {
+    font-size: 0.95rem;
+    min-height: 2.6em;
+  }
+  .currentPrice {
+    font-size: 1.15rem;
+  }
+  .addToCartBtn {
+    padding: 7px 12px;
+    font-size: 0.8rem;
+    min-height: 38px;
   }
   .marketplaceInner {
-    padding: 28px 18px;
+    padding: 32px 22px;
+  }
+  .marketplaceTitle {
+    font-size: 1.65rem;
   }
   .sellerCtaContent {
     flex-direction: column;
     text-align: center;
   }
+  .sellerCtaTextGroup {
+    max-width: 100%;
+  }
   .sellerCtaBtn {
     width: 100%;
     justify-content: center;
+    min-height: 46px;
   }
   .paginationBar {
     width: 100%;
     justify-content: space-between;
+    padding: 12px 18px;
+  }
+}
+
+/* --- 480px Mobile --- */
+@media (max-width: 480px) {
+  .heroSection {
+    padding: 36px 16px 30px;
+  }
+  .heroTitle {
+    font-size: 1.95rem;
+    line-height: 1.25;
+  }
+  .heroSub {
+    font-size: 0.92rem;
+  }
+  .heroActions {
+    flex-direction: column;
+    width: 100%;
+    gap: 12px;
+  }
+  .heroPrimaryBtn, .heroSecondaryBtn {
+    width: 100%;
+    justify-content: center;
+    min-height: 48px;
+  }
+  .metricsGrid {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 18px 20px;
+    width: 100%;
+  }
+  .tagTopLeft, .tagBottomRight {
+    display: none;
+  }
+  .mainVisualCard {
+    height: 200px;
+  }
+  .visualGrid {
+    grid-template-columns: 1fr;
+  }
+  .searchInput {
+    padding: 12px 75px 12px 42px;
+    font-size: 0.9rem;
+  }
+  .clearSearchBtn {
+    right: 68px;
+  }
+  .searchBtn {
+    padding: 7px 14px;
+    font-size: 0.8rem;
+  }
+  .productGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .imageContainer {
+    height: 160px;
+  }
+  .categoryBadge {
+    font-size: 0.65rem;
+    padding: 3px 8px;
+  }
+  .discountBadge {
+    font-size: 0.65rem;
+    padding: 3px 6px;
+  }
+  .cardContent {
+    padding: 12px 10px;
+    gap: 6px;
+  }
+  .brandName {
+    font-size: 0.7rem;
+  }
+  .stockStatus {
+    font-size: 0.65rem;
+    padding: 2px 6px;
+  }
+  .productTitle {
+    font-size: 0.88rem;
+    line-height: 1.3;
+    min-height: 2.5em;
+  }
+  .cardFooter {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding-top: 8px;
+  }
+  .priceGroup {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .currentPrice {
+    font-size: 1.1rem;
+  }
+  .addToCartBtn {
+    width: 100%;
+    justify-content: center;
+    min-height: 40px;
+    padding: 8px;
+    font-size: 0.82rem;
+  }
+  .benefitsGrid, .trustGrid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .marketplaceInner {
+    padding: 24px 16px;
+    border-radius: var(--radius-lg);
+  }
+  .marketplaceTitle {
+    font-size: 1.45rem;
+  }
+  .sellerCtaCard {
+    padding: 22px 18px;
+  }
+  .sellerCtaTitle {
+    font-size: 1.3rem;
+  }
+  .trustSectionHeader {
+    margin-bottom: 24px;
+  }
+  .trustMainTitle {
+    font-size: 1.4rem;
+  }
+  .trustCard {
+    padding: 20px 16px;
+  }
+}
+
+/* --- 375px Mobile --- */
+@media (max-width: 375px) {
+  .heroTitle {
+    font-size: 1.7rem;
+  }
+  .heroBadge {
+    font-size: 0.7rem;
+    padding: 5px 12px;
+  }
+  .productGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .imageContainer {
+    height: 145px;
+  }
+  .productTitle {
+    font-size: 0.82rem;
+  }
+  .currentPrice {
+    font-size: 1rem;
+  }
+  .originalPrice {
+    font-size: 0.75rem;
   }
 }
