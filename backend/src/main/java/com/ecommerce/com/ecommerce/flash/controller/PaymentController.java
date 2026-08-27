@@ -19,7 +19,6 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping({"/api/v1/payments", "/payments"})
-@CrossOrigin(origins = "*")
 public class PaymentController {
 
     private final PaymentService paymentService;

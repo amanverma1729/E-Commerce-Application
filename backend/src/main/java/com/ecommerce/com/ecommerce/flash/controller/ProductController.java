@@ -27,7 +27,6 @@ import com.ecommerce.com.ecommerce.flash.dto.ProductRequest;
 import com.ecommerce.com.ecommerce.flash.dto.ProductResponse;
 import com.ecommerce.com.ecommerce.flash.service.ProductService;
 
-@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174"}, allowCredentials = "true")
 @RestController
 @RequestMapping({"/api/v1/products", "/products"})
 public class ProductController {

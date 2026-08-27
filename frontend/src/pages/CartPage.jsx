@@ -29,7 +29,13 @@ const CartPage = () => {
       .get(`/api/v1/cart/user/${userID}`)
       .then((res) => {
         const data = res.data?.data || res.data;
-        setCartItems(Array.isArray(data) ? data : []);
+        if (data && Array.isArray(data.items)) {
+          setCartItems(data.items);
+        } else if (Array.isArray(data)) {
+          setCartItems(data);
+        } else {
+          setCartItems([]);
+        }
         setLoading(false);
       })
       .catch((err) => {

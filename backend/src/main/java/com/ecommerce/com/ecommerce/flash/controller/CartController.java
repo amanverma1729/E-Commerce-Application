@@ -28,7 +28,6 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping({"/api/v1/cart", "/cart"})
-@CrossOrigin(origins = "*")
 public class CartController {
 
     private final CartService cartService;
