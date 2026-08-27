@@ -2,9 +2,18 @@ package com.ecommerce.com.ecommerce.flash.controller;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.ecommerce.com.ecommerce.flash.dto.AdminResponse;
 import com.ecommerce.com.ecommerce.flash.dto.ApiResponse;
@@ -14,7 +23,7 @@ import com.ecommerce.com.ecommerce.flash.service.AdminService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/admins")
+@RequestMapping({"/api/v1/admin", "/api/v1/admins", "/api/admins"})
 @PreAuthorize("hasRole('ADMIN')")
 @CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174"}, allowCredentials = "true")
 public class AdminController {
@@ -28,7 +37,7 @@ public class AdminController {
     @PostMapping
     public ResponseEntity<ApiResponse<AdminResponse>> createAdmin(@Valid @RequestBody Admin admin) {
         AdminResponse response = adminService.createAdmin(admin);
-        return ResponseEntity.ok(ApiResponse.success("Admin created successfully", response));
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("Admin created successfully", response));
     }
 
     @GetMapping

@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ecommerce.com.ecommerce.flash.dto.ApiResponse;
 import com.ecommerce.com.ecommerce.flash.dto.CartItemRequest;
-import com.ecommerce.com.ecommerce.flash.dto.CartItemResponse;
 import com.ecommerce.com.ecommerce.flash.dto.CartRequest;
 import com.ecommerce.com.ecommerce.flash.dto.CartResponse;
 import com.ecommerce.com.ecommerce.flash.dto.OrderResponse;
@@ -28,7 +27,7 @@ import com.ecommerce.com.ecommerce.flash.service.CartService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/cart")
+@RequestMapping({"/api/v1/cart", "/cart"})
 @CrossOrigin(origins = "*")
 public class CartController {
 
@@ -53,7 +52,6 @@ public class CartController {
             CartResponse cart = cartService.getCartForUser(userId);
             return ResponseEntity.ok(ApiResponse.success("Cart retrieved successfully", cart));
         } catch (Exception e) {
-            // Legacy endpoint bridge fallback
             List<OrderResponse> legacyCartItems = cartService.getCartItemsByUser(userId);
             return ResponseEntity.ok(ApiResponse.success("Cart retrieved successfully", legacyCartItems));
         }
@@ -91,10 +89,6 @@ public class CartController {
         cartService.clearCart(principal.getId());
         return ResponseEntity.ok(ApiResponse.success("Cart cleared successfully", null));
     }
-
-    // -----------------------------------------------------------------
-    // Legacy Endpoints for Frontend / Existing Test Compatibility
-    // -----------------------------------------------------------------
 
     @PostMapping
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")

@@ -83,9 +83,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/products/**", "/products/**").permitAll()
 
                         // Role-based Endpoints
-                        .requestMatchers("/api/v1/admin/**", "/admin/**", "/api/admins/**").hasRole("ADMIN")
-                        .requestMatchers("/api/v1/seller/**", "/seller/**", "/productOwner/**", "/product-owners/**").hasAnyRole("SELLER", "ADMIN")
-                        .requestMatchers("/api/v1/user/**", "/user/**", "/users/**", "/orders/**", "/cart/**").hasAnyRole("USER", "SELLER", "ADMIN")
+                        .requestMatchers("/api/v1/admin/**", "/api/v1/admins/**", "/admin/**", "/api/admins/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/sellers/**", "/api/v1/product-owners/**", "/api/v1/seller/**", "/seller/**", "/productOwner/**", "/product-owners/**").hasAnyRole("SELLER", "ADMIN")
+                        .requestMatchers("/api/v1/users/**", "/api/v1/orders/**", "/api/v1/cart/**", "/api/v1/payments/**", "/user/**", "/users/**", "/orders/**", "/cart/**", "/payments/**").hasAnyRole("USER", "SELLER", "ADMIN")
 
                         // All other requests require authentication
                         .anyRequest().authenticated()

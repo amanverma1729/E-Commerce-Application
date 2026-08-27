@@ -5,25 +5,35 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ecommerce.com.ecommerce.flash.dto.PageResponse;
 import com.ecommerce.com.ecommerce.flash.dto.ProductOwnerResponse;
 import com.ecommerce.com.ecommerce.flash.dto.ProductRequest;
 import com.ecommerce.com.ecommerce.flash.dto.ProductResponse;
 import com.ecommerce.com.ecommerce.flash.entity.Product;
 import com.ecommerce.com.ecommerce.flash.entity.ProductOwner;
 import com.ecommerce.com.ecommerce.flash.entity.ProductStatus;
+import com.ecommerce.com.ecommerce.flash.exception.BadRequestException;
 import com.ecommerce.com.ecommerce.flash.exception.ResourceNotFoundException;
 import com.ecommerce.com.ecommerce.flash.exception.UnauthorizedException;
 import com.ecommerce.com.ecommerce.flash.repository.ProductOwnerRepository;
 import com.ecommerce.com.ecommerce.flash.repository.ProductRepository;
+import com.ecommerce.com.ecommerce.flash.repository.specification.ProductSpecification;
 import com.ecommerce.com.ecommerce.flash.security.SecurityUtils;
 import com.ecommerce.com.ecommerce.flash.security.UserPrincipal;
 import com.ecommerce.com.ecommerce.flash.service.ProductService;
 
 @Service
 public class ProductServiceImpl implements ProductService {
+
+    private static final int MAX_PAGE_SIZE = 50;
 
     private final ProductRepository productRepository;
     private final ProductOwnerRepository productOwnerRepository;
@@ -51,6 +61,53 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.findByApproved(true).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PageResponse<ProductResponse> getApprovedProductsPaginated(
+            String search, String category, Double minPrice, Double maxPrice, int page, int size, String sort) {
+
+        if (page < 0) page = 0;
+        if (size <= 0) size = 10;
+        if (size > MAX_PAGE_SIZE) size = MAX_PAGE_SIZE;
+
+        if (minPrice != null && minPrice < 0) {
+            throw new BadRequestException("Minimum price cannot be negative.");
+        }
+        if (maxPrice != null && maxPrice < 0) {
+            throw new BadRequestException("Maximum price cannot be negative.");
+        }
+        if (minPrice != null && maxPrice != null && minPrice > maxPrice) {
+            throw new BadRequestException("Minimum price cannot be greater than maximum price.");
+        }
+
+        Sort sortObj = parseSort(sort);
+        Pageable pageable = PageRequest.of(page, size, sortObj);
+
+        Specification<Product> spec = ProductSpecification.filterProducts(search, category, minPrice, maxPrice, true);
+        Page<Product> productPage = productRepository.findAll(spec, pageable);
+
+        Page<ProductResponse> dtoPage = productPage.map(this::mapToResponse);
+        return PageResponse.fromPage(dtoPage);
+    }
+
+    private Sort parseSort(String sortParam) {
+        if (sortParam == null || sortParam.trim().isEmpty()) {
+            return Sort.by(Sort.Direction.DESC, "id");
+        }
+        String[] parts = sortParam.split(",");
+        String property = parts[0].trim();
+        Sort.Direction direction = Sort.Direction.ASC;
+        if (parts.length > 1 && "desc".equalsIgnoreCase(parts[1].trim())) {
+            direction = Sort.Direction.DESC;
+        }
+
+        // Whitelist allowed sort fields
+        if (!List.of("id", "price", "name", "category", "createdAt").contains(property)) {
+            property = "id";
+        }
+        return Sort.by(direction, property);
     }
 
     @Override

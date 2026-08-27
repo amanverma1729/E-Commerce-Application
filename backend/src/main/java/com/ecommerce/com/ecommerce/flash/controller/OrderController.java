@@ -2,6 +2,7 @@ package com.ecommerce.com.ecommerce.flash.controller;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -25,7 +26,7 @@ import com.ecommerce.com.ecommerce.flash.service.OrderService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/orders")
+@RequestMapping({"/api/v1/orders", "/orders"})
 @CrossOrigin(origins = "*")
 public class OrderController {
 
@@ -44,14 +45,14 @@ public class OrderController {
             request.setIdempotencyKey(idempotencyHeader.trim());
         }
         OrderResponse response = orderService.checkout(request);
-        return ResponseEntity.ok(ApiResponse.success("Checkout completed successfully", response));
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("Checkout completed successfully", response));
     }
 
     @PostMapping
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<OrderResponse>> placeOrder(@Valid @RequestBody OrderRequest request) {
         OrderResponse response = orderService.placeOrder(request);
-        return ResponseEntity.ok(ApiResponse.success("Order placed successfully", response));
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("Order placed successfully", response));
     }
 
     @GetMapping("/{id}")

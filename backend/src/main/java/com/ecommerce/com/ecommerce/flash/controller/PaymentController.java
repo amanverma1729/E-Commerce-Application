@@ -18,7 +18,7 @@ import com.ecommerce.com.ecommerce.flash.service.PaymentService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/payments")
+@RequestMapping({"/api/v1/payments", "/payments"})
 @CrossOrigin(origins = "*")
 public class PaymentController {
 

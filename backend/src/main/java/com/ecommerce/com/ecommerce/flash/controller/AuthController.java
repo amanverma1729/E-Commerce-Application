@@ -3,6 +3,7 @@ package com.ecommerce.com.ecommerce.flash.controller;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,7 +21,7 @@ import com.ecommerce.com.ecommerce.flash.service.AuthService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping({"/api/v1/auth", "/auth"})
 @CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174"}, allowCredentials = "true")
 public class AuthController {
 
@@ -36,13 +37,13 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<AuthResponse>> registerCustomer(@Valid @RequestBody RegisterRequest request) {
         AuthResponse response = authService.registerUser(request);
-        return ResponseEntity.ok(ApiResponse.success("User registered successfully", response));
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("User registered successfully", response));
     }
 
     @PostMapping("/seller/register")
     public ResponseEntity<ApiResponse<AuthResponse>> registerSeller(@Valid @RequestBody SellerRegisterRequest request) {
         AuthResponse response = authService.registerSeller(request);
-        return ResponseEntity.ok(ApiResponse.success("Seller registered successfully", response));
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("Seller registered successfully", response));
     }
 
     @PostMapping("/refresh")

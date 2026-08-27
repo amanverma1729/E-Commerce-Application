@@ -53,7 +53,8 @@ public class FlywayConfig {
             ensureColumnExists("orders", "created_at", "DATETIME DEFAULT CURRENT_TIMESTAMP");
             ensureColumnExists("orders", "updated_at", "DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
 
-            // Execute Flyway Migration
+            // Repair any failed migration history and execute Flyway Migration
+            flyway.repair();
             flyway.migrate();
         };
     }
