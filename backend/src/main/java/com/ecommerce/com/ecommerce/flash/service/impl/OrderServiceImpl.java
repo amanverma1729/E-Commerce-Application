@@ -45,6 +45,9 @@ import com.ecommerce.com.ecommerce.flash.security.SecurityUtils;
 import com.ecommerce.com.ecommerce.flash.security.UserPrincipal;
 import com.ecommerce.com.ecommerce.flash.service.OrderService;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class OrderServiceImpl implements OrderService {
 
@@ -184,6 +187,7 @@ public class OrderServiceImpl implements OrderService {
         cart.getCartItems().clear();
         cartRepository.save(cart);
 
+        log.info("Order checkout successful: orderId={}, userId={}, total={}", savedOrder.getId(), user.getId(), totalOrderPrice);
         return mapToResponse(savedOrder);
     }
 

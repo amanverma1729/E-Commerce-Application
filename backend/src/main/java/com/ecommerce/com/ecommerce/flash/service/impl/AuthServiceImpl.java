@@ -26,6 +26,9 @@ import com.ecommerce.com.ecommerce.flash.security.JwtTokenProvider;
 import com.ecommerce.com.ecommerce.flash.security.UserPrincipal;
 import com.ecommerce.com.ecommerce.flash.service.AuthService;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class AuthServiceImpl implements AuthService {
 
@@ -59,11 +62,13 @@ public class AuthServiceImpl implements AuthService {
                     new UsernamePasswordAuthenticationToken(authRequest.getEmail(), authRequest.getPassword())
             );
         } catch (Exception ex) {
+            log.warn("Authentication failed for email: {}", authRequest.getEmail());
             throw new BadCredentialsException("Invalid email or password");
         }
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+        log.info("User successfully authenticated: email={}, role={}", principal.getEmail(), principal.getRole());
 
         String accessToken = tokenProvider.generateAccessToken(authentication);
         String refreshToken = tokenProvider.generateRefreshToken(authentication);

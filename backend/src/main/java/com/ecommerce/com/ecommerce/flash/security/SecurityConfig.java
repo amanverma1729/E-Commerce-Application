@@ -75,9 +75,9 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(auth -> auth
-                        // Public Auth and Documentation endpoints
+                        // Public Auth, Documentation, and Actuator endpoints
                         .requestMatchers("/api/v1/auth/**", "/auth/**").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/actuator/**").permitAll()
                         
                         // Public Storefront product browsing (Read-Only)
                         .requestMatchers(HttpMethod.GET, "/api/v1/products/**", "/products/**").permitAll()
