@@ -1773,9 +1773,224 @@
   transition: all var(--transition-fast);
 }
 
-.resetBtn:hover {
+/* =============================================================================
+   6.5 MULTI-VENDOR MARKETPLACE SHOWCASE & SELLER CTA
+   ============================================================================= */
+.marketplaceSection {
+  max-width: 1340px;
+  margin: 50px auto 0;
+  padding: 0 24px;
+  position: relative;
+  z-index: 1;
+}
+
+.marketplaceInner {
+  background: linear-gradient(180deg, rgba(20, 27, 44, 0.75) 0%, rgba(13, 18, 30, 0.85) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-xl);
+  padding: 44px 36px;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.35);
+}
+
+.marketplaceHeader {
+  text-align: center;
+  max-width: 680px;
+  margin: 0 auto 36px;
+}
+
+.vendorBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  border-radius: var(--radius-full);
+  background: rgba(6, 182, 212, 0.1);
+  border: 1px solid rgba(6, 182, 212, 0.25);
+  color: #06b6d4;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+}
+
+.vendorBadgeIcon {
+  font-size: 0.95rem;
+}
+
+.marketplaceTitle {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 10px;
+  letter-spacing: -0.5px;
+}
+
+.marketplaceSub {
+  font-size: 0.98rem;
+  color: #9ca3af;
+  line-height: 1.55;
+}
+
+.benefitsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 22px;
+  margin-bottom: 40px;
+}
+
+.benefitCard {
+  background: rgba(9, 13, 22, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: var(--radius-lg);
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  transition: all 0.25s ease;
+}
+
+.benefitCard:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 255, 255, 0.16);
+  background: rgba(9, 13, 22, 0.85);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.benefitIconWrap {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  margin-bottom: 16px;
+}
+
+.benefitIconCheck {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.28);
+  color: #10b981;
+}
+
+.benefitIconLock {
+  background: rgba(6, 182, 212, 0.12);
+  border: 1px solid rgba(6, 182, 212, 0.28);
+  color: #06b6d4;
+}
+
+.benefitIconStar {
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.28);
+  color: #f59e0b;
+}
+
+.benefitIconTruck {
+  background: rgba(99, 102, 241, 0.12);
+  border: 1px solid rgba(99, 102, 241, 0.28);
+  color: #818cf8;
+}
+
+.benefitCard h4 {
+  font-size: 1.02rem;
+  color: #ffffff;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.benefitCard p {
+  font-size: 0.86rem;
+  color: #9ca3af;
+  line-height: 1.5;
+}
+
+/* Tasteful Seller CTA Banner */
+.sellerCtaCard {
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.18) 0%, rgba(6, 182, 212, 0.12) 100%);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  padding: 30px 36px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.sellerCtaGlow {
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.sellerCtaContent {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  flex-wrap: wrap;
+}
+
+.sellerCtaTextGroup {
+  max-width: 650px;
+}
+
+.sellerCtaBadge {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #818cf8;
+  letter-spacing: 1px;
+}
+
+.sellerCtaTitle {
+  font-family: var(--font-display);
+  font-size: 1.55rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 4px 0 8px;
+}
+
+.sellerCtaDesc {
+  font-size: 0.92rem;
+  color: #d1d5db;
+  line-height: 1.5;
+}
+
+.sellerCtaBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 28px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+  transition: all 0.25s ease;
+  white-space: nowrap;
+}
+
+.sellerCtaBtn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
+  box-shadow: 0 10px 25px rgba(99, 102, 241, 0.6);
+  background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+}
+
+.sellerCtaBtn svg {
+  transition: transform 0.2s ease;
+}
+
+.sellerCtaBtn:hover svg {
+  transform: translateX(4px);
 }
 
 /* =============================================================================
@@ -1917,6 +2132,10 @@
     grid-template-columns: repeat(2, 1fr);
     gap: 22px;
   }
+  .benefitsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+  }
   .metricsGrid {
     gap: 28px;
     padding: 16px 28px;
@@ -1966,6 +2185,20 @@
   .trustGrid {
     grid-template-columns: 1fr;
     padding: 24px 18px;
+  }
+  .benefitsGrid {
+    grid-template-columns: 1fr;
+  }
+  .marketplaceInner {
+    padding: 28px 18px;
+  }
+  .sellerCtaContent {
+    flex-direction: column;
+    text-align: center;
+  }
+  .sellerCtaBtn {
+    width: 100%;
+    justify-content: center;
   }
   .paginationBar {
     width: 100%;

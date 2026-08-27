@@ -950,6 +950,81 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Multi-Vendor Marketplace Showcase & Seller CTA */}
+      <section className={styles.marketplaceSection}>
+        <div className={styles.marketplaceInner}>
+          {/* Section Header */}
+          <div className={styles.marketplaceHeader}>
+            <div className={styles.vendorBadge}>
+              <FiCheckCircle className={styles.vendorBadgeIcon} />
+              <span>MULTI-VENDOR MARKETPLACE</span>
+            </div>
+            <h2 className={styles.marketplaceTitle}>
+              Shop from <span className={styles.accentText}>verified sellers</span>
+            </h2>
+            <p className={styles.marketplaceSub}>
+              FLASH brings together top independent brand owners and customers in one seamless, protected digital marketplace platform.
+            </p>
+          </div>
+
+          {/* 4 Marketplace Benefits Grid */}
+          <div className={styles.benefitsGrid}>
+            <div className={styles.benefitCard}>
+              <div className={`${styles.benefitIconWrap} ${styles.benefitIconCheck}`}>
+                <FiCheckCircle />
+              </div>
+              <h4>Verified Sellers</h4>
+              <p>Every product owner undergoes authorization checks before listing items on FLASH.</p>
+            </div>
+
+            <div className={styles.benefitCard}>
+              <div className={`${styles.benefitIconWrap} ${styles.benefitIconLock}`}>
+                <FiLock />
+              </div>
+              <h4>Secure Payments</h4>
+              <p>Protected checkout architecture ensuring end-to-end encryption for every transaction.</p>
+            </div>
+
+            <div className={styles.benefitCard}>
+              <div className={`${styles.benefitIconWrap} ${styles.benefitIconStar}`}>
+                <FiStar />
+              </div>
+              <h4>Seller Ratings</h4>
+              <p>Transparent customer feedback and ratings so you can purchase with full confidence.</p>
+            </div>
+
+            <div className={styles.benefitCard}>
+              <div className={`${styles.benefitIconWrap} ${styles.benefitIconTruck}`}>
+                <FiTruck />
+              </div>
+              <h4>Order Tracking</h4>
+              <p>Real-time lifecycle updates from cart checkout to seller dispatch and final delivery.</p>
+            </div>
+          </div>
+
+          {/* Tasteful Seller CTA Banner */}
+          <div className={styles.sellerCtaCard}>
+            <div className={styles.sellerCtaGlow} />
+            <div className={styles.sellerCtaContent}>
+              <div className={styles.sellerCtaTextGroup}>
+                <span className={styles.sellerCtaBadge}>EXPAND YOUR BUSINESS</span>
+                <h3 className={styles.sellerCtaTitle}>Start Selling on FLASH</h3>
+                <p className={styles.sellerCtaDesc}>
+                  Reach more customers and manage your products from one place. Join our growing network of verified product owners.
+                </p>
+              </div>
+              <button
+                className={styles.sellerCtaBtn}
+                onClick={() => navigate("/SignupProductOwner")}
+              >
+                <span>Become a Seller</span>
+                <FiArrowRight />
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Authentic Marketplace Trust Guarantees */}
       <section className={styles.trustBanner}>
         <div className={styles.trustSectionHeader}>
