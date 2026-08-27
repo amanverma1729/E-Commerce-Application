@@ -615,6 +615,18 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 26px;
+  animation: gridFadeIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes gridFadeIn {
+  from {
+    opacity: 0.7;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .productCard {
@@ -625,17 +637,104 @@
   display: flex;
   flex-direction: column;
   cursor: pointer;
-  transition: all 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   backdrop-filter: blur(14px);
   position: relative;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
 }
 
 .productCard:hover {
-  transform: translateY(-7px);
+  transform: translateY(-6px);
   border-color: rgba(99, 102, 241, 0.45);
   box-shadow: 0 16px 38px rgba(0, 0, 0, 0.55), 0 0 25px rgba(99, 102, 241, 0.22);
   background: linear-gradient(180deg, rgba(26, 35, 56, 0.9) 0%, rgba(17, 23, 38, 0.95) 100%);
+}
+
+.productCard:active {
+  transform: translateY(-2px) scale(0.99);
+}
+
+.wishlistBtn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(9, 13, 22, 0.75);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #9ca3af;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.wishlistBtn:hover {
+  background: rgba(244, 63, 94, 0.2);
+  color: #f43f5e;
+  border-color: rgba(244, 63, 94, 0.4);
+  transform: scale(1.1);
+}
+
+.wishlistBtn:active {
+  transform: scale(0.85);
+}
+
+.wishlistActive {
+  background: rgba(244, 63, 94, 0.9) !important;
+  color: #ffffff !important;
+  border-color: #f43f5e !important;
+  box-shadow: 0 4px 12px rgba(244, 63, 94, 0.4);
+  animation: heartPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes heartPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.28); }
+  100% { transform: scale(1); }
+}
+
+.addToCartBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.addToCartBtn:hover {
+  background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(99, 102, 241, 0.55);
+}
+
+.addToCartBtn:active {
+  transform: scale(0.94);
+}
+
+.addedBtnState {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  border-color: rgba(16, 185, 129, 0.4) !important;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4) !important;
+}
+
+.checkIconAnim {
+  animation: checkPop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  font-size: 1rem;
+}
+
+@keyframes checkPop {
+  0% { transform: scale(0.5); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
 }
 
 .imageContainer {

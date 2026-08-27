@@ -17,6 +17,7 @@ import {
 } from "react-icons/fi";
 
 const Navbar = () => {
+  const [scrolled, setScrolled] = useState(false);
   const [loggedIn, setLoggedIn] = useState({
     userID: sessionStorage.getItem("userID"),
     productOwnerId: sessionStorage.getItem("productOwnerId"),
@@ -25,6 +26,14 @@ const Navbar = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     setLoggedIn({
@@ -63,7 +72,7 @@ const Navbar = () => {
   }
 
   return (
-    <nav className={style.navContainer}>
+    <nav className={`${style.navContainer} ${scrolled ? style.scrolledNav : ""}`}>
       <div className={style.navInner}>
         {/* Brand Logo */}
         <Link to="/" className={style.brandLogo}>

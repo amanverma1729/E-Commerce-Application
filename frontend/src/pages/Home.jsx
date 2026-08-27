@@ -20,6 +20,7 @@ import {
   FiEye,
   FiShoppingCart,
   FiHeart,
+  FiCheck,
 } from "react-icons/fi";
 import apiClient from "../api/apiClient";
 
@@ -71,6 +72,7 @@ const Home = () => {
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [wishlist, setWishlist] = useState([]);
+  const [addingCartId, setAddingCartId] = useState(null);
 
   const navigate = useNavigate();
   const userID = sessionStorage.getItem("userID") || localStorage.getItem("userID");
@@ -150,6 +152,7 @@ const Home = () => {
       navigate("/login");
       return;
     }
+    setAddingCartId(product.id);
     try {
       await apiClient.post("/api/v1/cart/items", {
         productId: product.id,
@@ -170,6 +173,8 @@ const Home = () => {
       } catch (legacyErr) {
         toast.error(err.response?.data?.message || "Failed to add product to cart");
       }
+    } finally {
+      setTimeout(() => setAddingCartId(null), 1400);
     }
   };
 
@@ -257,12 +262,24 @@ const Home = () => {
             </div>
 
             <button
-              className={styles.addToCartBtn}
+              className={`${styles.addToCartBtn} ${
+                addingCartId === product.id ? styles.addedBtnState : ""
+              }`}
               title="Add to Cart"
+              disabled={addingCartId === product.id}
               onClick={(e) => handleQuickAddToCart(e, product)}
             >
-              <FiShoppingCart />
-              <span>Add</span>
+              {addingCartId === product.id ? (
+                <>
+                  <FiCheck className={styles.checkIconAnim} />
+                  <span>Added</span>
+                </>
+              ) : (
+                <>
+                  <FiShoppingCart />
+                  <span>Add</span>
+                </>
+              )}
             </button>
           </div>
         </div>
