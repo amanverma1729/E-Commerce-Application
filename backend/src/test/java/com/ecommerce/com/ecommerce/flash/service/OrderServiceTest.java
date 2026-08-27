@@ -1,7 +1,6 @@
 package com.ecommerce.com.ecommerce.flash.service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,7 +17,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.ecommerce.com.ecommerce.flash.dto.CheckoutRequest;
@@ -28,12 +26,15 @@ import com.ecommerce.com.ecommerce.flash.entity.Cart;
 import com.ecommerce.com.ecommerce.flash.entity.CartItem;
 import com.ecommerce.com.ecommerce.flash.entity.IdempotencyRecord;
 import com.ecommerce.com.ecommerce.flash.entity.Order;
+import com.ecommerce.com.ecommerce.flash.entity.OrderItem;
 import com.ecommerce.com.ecommerce.flash.entity.Product;
 import com.ecommerce.com.ecommerce.flash.entity.ProductStatus;
 import com.ecommerce.com.ecommerce.flash.entity.User;
 import com.ecommerce.com.ecommerce.flash.exception.EmptyCartException;
 import com.ecommerce.com.ecommerce.flash.exception.InsufficientStockException;
+import com.ecommerce.com.ecommerce.flash.exception.InvalidOrderStateException;
 import com.ecommerce.com.ecommerce.flash.exception.ResourceNotFoundException;
+import com.ecommerce.com.ecommerce.flash.exception.UnauthorizedException;
 import com.ecommerce.com.ecommerce.flash.repository.CartRepository;
 import com.ecommerce.com.ecommerce.flash.repository.IdempotencyRecordRepository;
 import com.ecommerce.com.ecommerce.flash.repository.OrderItemRepository;
@@ -147,9 +148,69 @@ class OrderServiceTest {
         OrderResponse response = orderService.checkout(request);
 
         assertNotNull(response);
-        assertEquals(3, product.getStock()); // Deducted stock
+        assertEquals(3, product.getStock());
         assertEquals(50.0, response.getTotalPrice());
         assertEquals("CONFIRMED", response.getStatus());
+    }
+
+    @Test
+    void testCustomerCancelOrder_Success_RestoresInventory() {
+        Order existingOrder = new Order();
+        existingOrder.setId(200L);
+        existingOrder.setUser(user);
+        existingOrder.setProduct(product);
+        existingOrder.setQuantity(2);
+        existingOrder.setStatus("CONFIRMED");
+
+        OrderItem item = new OrderItem();
+        item.setOrder(existingOrder);
+        item.setProduct(product);
+        item.setQuantity(2);
+        existingOrder.setOrderItems(List.of(item));
+
+        when(orderRepository.findById(200L)).thenReturn(Optional.of(existingOrder));
+        when(orderRepository.save(any(Order.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        orderService.cancelOrder(200L);
+
+        assertEquals("CANCELLED", existingOrder.getStatus());
+        assertEquals(7, product.getStock()); // Restored from 5 to 7 (5 + 2)
+        verify(productRepository).save(product);
+    }
+
+    @Test
+    void testCustomerSetStatusToDelivered_ThrowsException() {
+        Order existingOrder = new Order();
+        existingOrder.setId(200L);
+        existingOrder.setUser(user);
+        existingOrder.setStatus("CONFIRMED");
+
+        when(orderRepository.findById(200L)).thenReturn(Optional.of(existingOrder));
+
+        assertThrows(InvalidOrderStateException.class, () -> orderService.updateOrderStatus(200L, "DELIVERED", null, 0));
+    }
+
+    @Test
+    void testUpdateStatus_TerminalState_ThrowsException() {
+        User admin = new User();
+        admin.setId(1L);
+        admin.setRole("ROLE_ADMIN");
+        UserPrincipal adminPrincipal = UserPrincipal.create(admin);
+        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(adminPrincipal, null, adminPrincipal.getAuthorities()));
+
+        Order cancelledOrder = new Order();
+        cancelledOrder.setId(300L);
+        cancelledOrder.setUser(user);
+        cancelledOrder.setStatus("CANCELLED");
+
+        when(orderRepository.findById(300L)).thenReturn(Optional.of(cancelledOrder));
+
+        assertThrows(InvalidOrderStateException.class, () -> orderService.updateOrderStatus(300L, "SHIPPED", null, 0));
+    }
+
+    @Test
+    void testGetOrders_AnotherUser_ThrowsException() {
+        assertThrows(UnauthorizedException.class, () -> orderService.getOrdersByUserId(999L));
     }
 
     @Test

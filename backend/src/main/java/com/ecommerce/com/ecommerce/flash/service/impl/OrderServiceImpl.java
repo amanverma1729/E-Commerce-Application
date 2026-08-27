@@ -29,9 +29,9 @@ import com.ecommerce.com.ecommerce.flash.entity.ProductOwner;
 import com.ecommerce.com.ecommerce.flash.entity.ProductStatus;
 import com.ecommerce.com.ecommerce.flash.entity.User;
 import com.ecommerce.com.ecommerce.flash.exception.BadRequestException;
-import com.ecommerce.com.ecommerce.flash.exception.DuplicateCheckoutException;
 import com.ecommerce.com.ecommerce.flash.exception.EmptyCartException;
 import com.ecommerce.com.ecommerce.flash.exception.InsufficientStockException;
+import com.ecommerce.com.ecommerce.flash.exception.InvalidOrderStateException;
 import com.ecommerce.com.ecommerce.flash.exception.ResourceNotFoundException;
 import com.ecommerce.com.ecommerce.flash.exception.UnauthorizedException;
 import com.ecommerce.com.ecommerce.flash.repository.CartRepository;
@@ -87,17 +87,13 @@ public class OrderServiceImpl implements OrderService {
         User user = getAuthenticatedUser();
         String idempotencyKey = request.getIdempotencyKey();
 
-        // 1. Idempotency Key Validation
         if (idempotencyKey != null && !idempotencyKey.trim().isEmpty()) {
             Optional<IdempotencyRecord> recordOpt = idempotencyRecordRepository.findByUserIdAndIdempotencyKey(user.getId(), idempotencyKey);
             if (recordOpt.isPresent()) {
-                // Idempotent duplicate check: return existing order response
-                Order existingOrder = recordOpt.get().getOrder();
-                return mapToResponse(existingOrder);
+                return mapToResponse(recordOpt.get().getOrder());
             }
         }
 
-        // 2. Fetch & Validate Cart
         Cart cart = cartRepository.findByUserId(user.getId())
                 .orElseThrow(() -> new EmptyCartException("Shopping cart is empty. Add items before checking out."));
 
@@ -105,7 +101,6 @@ public class OrderServiceImpl implements OrderService {
             throw new EmptyCartException("Shopping cart is empty. Add items before checking out.");
         }
 
-        // 3. Product & Stock Validation
         double totalOrderPrice = 0.0;
         List<OrderItem> orderItemsToSave = new ArrayList<>();
         List<Product> productsToSave = new ArrayList<>();
@@ -127,11 +122,9 @@ public class OrderServiceImpl implements OrderService {
                 throw new InsufficientStockException("Insufficient stock for product: " + product.getName() + ". Available stock: " + product.getStock() + ", requested: " + requestedQty);
             }
 
-            // Deduct stock (Optimistic Locking via @Version handles concurrent update conflicts)
             product.setStock(product.getStock() - requestedQty);
             productsToSave.add(product);
 
-            // Trusted backend price calculation
             double itemTotal = product.getPrice() * requestedQty;
             totalOrderPrice += itemTotal;
 
@@ -144,10 +137,8 @@ public class OrderServiceImpl implements OrderService {
             orderItemsToSave.add(orderItem);
         }
 
-        // Save updated product stock
         productRepository.saveAll(productsToSave);
 
-        // 4. Create Order
         Order order = new Order();
         order.setUser(user);
         order.setOrderDate(LocalDateTime.now());
@@ -157,7 +148,6 @@ public class OrderServiceImpl implements OrderService {
         order.setShippingAddress(request.getShippingAddress() != null ? request.getShippingAddress() : user.getAddress());
         order.setIdempotencyKey(idempotencyKey);
 
-        // Legacy compatibility snapshot fields from first item
         if (!orderItemsToSave.isEmpty()) {
             OrderItem first = orderItemsToSave.get(0);
             order.setProduct(first.getProduct());
@@ -168,14 +158,12 @@ public class OrderServiceImpl implements OrderService {
 
         Order savedOrder = orderRepository.save(order);
 
-        // Link and save order items
         for (OrderItem item : orderItemsToSave) {
             item.setOrder(savedOrder);
         }
         orderItemRepository.saveAll(orderItemsToSave);
         savedOrder.setOrderItems(orderItemsToSave);
 
-        // 5. Create Payment Record
         Payment payment = new Payment();
         payment.setOrder(savedOrder);
         payment.setPaymentMethod(savedOrder.getPaymentMethod());
@@ -185,7 +173,6 @@ public class OrderServiceImpl implements OrderService {
         paymentRepository.save(payment);
         savedOrder.setPayment(payment);
 
-        // 6. Save Idempotency Record if key was supplied
         if (idempotencyKey != null && !idempotencyKey.trim().isEmpty()) {
             IdempotencyRecord record = new IdempotencyRecord();
             record.setIdempotencyKey(idempotencyKey);
@@ -194,7 +181,6 @@ public class OrderServiceImpl implements OrderService {
             idempotencyRecordRepository.save(record);
         }
 
-        // 7. Clear Shopping Cart
         cart.getCartItems().clear();
         cartRepository.save(cart);
 
@@ -300,48 +286,98 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public OrderResponse updateOrderStatus(Long orderId, String status, String paymentMethod, int quantity) {
-        Order existingOrder = orderRepository.findById(orderId)
-                .orElseThrow(() -> new ResourceNotFoundException("Order not found with ID: " + orderId));
-
-        Long userId = existingOrder.getUser() != null ? existingOrder.getUser().getId() : null;
-        Long ownerId = (existingOrder.getProduct() != null && existingOrder.getProduct().getProductOwner() != null)
-                ? existingOrder.getProduct().getProductOwner().getProductOwnerId() : null;
-
-        // Step 15: Status updates restricted to seller/admin or legitimate user rules
-        if (!SecurityUtils.isOwnerOrAdmin(userId) && !SecurityUtils.isOwnerOrAdmin(ownerId)) {
-            throw new UnauthorizedException("Access denied: Cannot modify this order.");
-        }
-
-        if (status != null) {
-            existingOrder.setStatus(status);
-        }
-        if (paymentMethod != null) {
-            existingOrder.setPaymentMethod(paymentMethod);
-        }
-        if (quantity > 0) {
-            existingOrder.setQuantity(quantity);
-            if (existingOrder.getUnitPriceAtPurchase() != null) {
-                existingOrder.setTotalPrice(existingOrder.getUnitPriceAtPurchase() * quantity);
-            }
-        }
-
-        Order saved = orderRepository.save(existingOrder);
-        return mapToResponse(saved);
-    }
-
-    @Override
-    @Transactional
-    public void cancelOrder(Long orderId) {
+    public OrderResponse updateOrderStatus(Long orderId, String targetStatus, String paymentMethod, int quantity) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with ID: " + orderId));
 
         Long userId = order.getUser() != null ? order.getUser().getId() : null;
-        if (!SecurityUtils.isOwnerOrAdmin(userId)) {
-            throw new UnauthorizedException("Access denied: Cannot cancel another user's order.");
+        Long ownerId = (order.getProduct() != null && order.getProduct().getProductOwner() != null)
+                ? order.getProduct().getProductOwner().getProductOwnerId() : null;
+
+        boolean isAdmin = SecurityUtils.isAdmin();
+        boolean isOwner = SecurityUtils.isOwnerOrAdmin(userId);
+        boolean isSeller = SecurityUtils.isOwnerOrAdmin(ownerId);
+
+        if (!isOwner && !isSeller && !isAdmin) {
+            throw new UnauthorizedException("Access denied: Cannot modify this order.");
         }
 
-        // Restore product inventory on order cancellation
+        String currentStatus = order.getStatus() != null ? order.getStatus().toUpperCase() : "PENDING";
+        String nextStatus = targetStatus != null ? targetStatus.toUpperCase() : currentStatus;
+
+        // Validation Rules for Order Lifecycle State Machine
+        if (!currentStatus.equals(nextStatus)) {
+            validateStatusTransition(currentStatus, nextStatus, isAdmin, isSeller, isOwner);
+
+            // Handle cancellation stock restoration
+            if ("CANCELLED".equals(nextStatus) && !"CANCELLED".equals(currentStatus)) {
+                restoreOrderStock(order);
+            }
+
+            order.setStatus(nextStatus);
+        }
+
+        if (paymentMethod != null) {
+            order.setPaymentMethod(paymentMethod);
+        }
+        if (quantity > 0) {
+            order.setQuantity(quantity);
+            if (order.getUnitPriceAtPurchase() != null) {
+                order.setTotalPrice(order.getUnitPriceAtPurchase() * quantity);
+            }
+        }
+
+        Order saved = orderRepository.save(order);
+        return mapToResponse(saved);
+    }
+
+    private void validateStatusTransition(String current, String target, boolean isAdmin, boolean isSeller, boolean isOwner) {
+        // Terminal states cannot be changed
+        if ("CANCELLED".equals(current) || "DELIVERED".equals(current) || "PAYMENT_FAILED".equals(current)) {
+            throw new InvalidOrderStateException("Cannot update order in terminal state: " + current);
+        }
+
+        // Regular CUSTOMER (User) can ONLY request cancellation
+        if (isOwner && !isAdmin && !isSeller) {
+            if (!"CANCELLED".equals(target)) {
+                throw new InvalidOrderStateException("Customers are not authorized to update order status to: " + target);
+            }
+            if (!"PLACED".equals(current) && !"CONFIRMED".equals(current) && !"PENDING".equals(current) && !"ORDERED".equals(current)) {
+                throw new InvalidOrderStateException("Orders in status '" + current + "' cannot be cancelled by customer.");
+            }
+            return;
+        }
+
+        // State machine rules for Seller / Admin
+        switch (current) {
+            case "PLACED":
+            case "PENDING":
+            case "ORDERED":
+                if (!"CONFIRMED".equals(target) && !"CANCELLED".equals(target) && !"PAYMENT_FAILED".equals(target)) {
+                    throw new InvalidOrderStateException("Invalid transition from " + current + " to " + target);
+                }
+                break;
+            case "CONFIRMED":
+                if (!"PROCESSING".equals(target) && !"CANCELLED".equals(target)) {
+                    throw new InvalidOrderStateException("Invalid transition from CONFIRMED to " + target);
+                }
+                break;
+            case "PROCESSING":
+                if (!"SHIPPED".equals(target) && !"CANCELLED".equals(target)) {
+                    throw new InvalidOrderStateException("Invalid transition from PROCESSING to " + target);
+                }
+                break;
+            case "SHIPPED":
+                if (!"DELIVERED".equals(target)) {
+                    throw new InvalidOrderStateException("Invalid transition from SHIPPED to " + target);
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void restoreOrderStock(Order order) {
         if (order.getOrderItems() != null && !order.getOrderItems().isEmpty()) {
             for (OrderItem item : order.getOrderItems()) {
                 if (item.getProduct() != null) {
@@ -350,13 +386,17 @@ public class OrderServiceImpl implements OrderService {
                     productRepository.save(p);
                 }
             }
-        } else if (order.getProduct() != null && !"In Cart".equalsIgnoreCase(order.getStatus())) {
-            Product product = order.getProduct();
-            product.setStock(product.getStock() + order.getQuantity());
-            productRepository.save(product);
+        } else if (order.getProduct() != null) {
+            Product p = order.getProduct();
+            p.setStock(p.getStock() + order.getQuantity());
+            productRepository.save(p);
         }
+    }
 
-        orderRepository.delete(order);
+    @Override
+    @Transactional
+    public void cancelOrder(Long orderId) {
+        updateOrderStatus(orderId, "CANCELLED", null, 0);
     }
 
     private OrderResponse mapToResponse(Order order) {
@@ -422,6 +462,7 @@ public class OrderServiceImpl implements OrderService {
                     .paymentStatus(p.getPaymentStatus())
                     .amount(p.getAmount())
                     .transactionId(p.getTransactionId())
+                    .failureReason(p.getFailureReason())
                     .build();
         }
 

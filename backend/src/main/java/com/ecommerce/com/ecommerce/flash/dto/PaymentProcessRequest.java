@@ -1,5 +1,6 @@
 package com.ecommerce.com.ecommerce.flash.dto;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,12 +10,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PaymentResponse {
-    private Long id;
+public class PaymentProcessRequest {
+
+    @NotNull(message = "Order ID is required")
     private Long orderId;
-    private String paymentMethod;
-    private String paymentStatus;
-    private double amount;
-    private String transactionId;
-    private String failureReason;
+
+    @Builder.Default
+    private String paymentMethod = "MOCK_PAYMENT";
+
+    private String simulateStatus;
 }

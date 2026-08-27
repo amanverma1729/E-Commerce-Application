@@ -36,6 +36,12 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(ex.getMessage()));
     }
 
+    @ExceptionHandler(InvalidOrderStateException.class)
+    public ResponseEntity<ApiResponse<Object>> handleInvalidOrderState(InvalidOrderStateException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error(ex.getMessage()));
+    }
+
     @ExceptionHandler(DuplicateCheckoutException.class)
     public ResponseEntity<ApiResponse<Object>> handleDuplicateCheckout(DuplicateCheckoutException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT)

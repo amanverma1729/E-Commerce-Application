@@ -47,6 +47,9 @@ public class Payment {
     @Column(name = "transaction_id")
     private String transactionId;
 
+    @Column(name = "failure_reason")
+    private String failureReason;
+
     @CreatedDate
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
