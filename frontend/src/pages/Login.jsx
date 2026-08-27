@@ -45,27 +45,43 @@ const Login = () => {
         sessionStorage.setItem("refreshToken", refreshToken);
       }
 
-      if (type === "PRODUCT_OWNER" || role === "SELLER") {
+      const normalizedRole = (role || type || "").toUpperCase();
+
+      if (
+        normalizedRole.includes("SELLER") ||
+        normalizedRole.includes("PRODUCT_OWNER") ||
+        normalizedRole.includes("OWNER")
+      ) {
         sessionStorage.setItem("userType", "PRODUCT_OWNER");
         sessionStorage.setItem("productOwnerId", id);
         localStorage.setItem("userType", "PRODUCT_OWNER");
         localStorage.setItem("productOwnerId", id);
         toast.success("Welcome back, Seller!");
         navigate("/productlist");
-      } else if (type === "USER" || role === "CUSTOMER" || role === "USER") {
+      } else if (
+        normalizedRole.includes("USER") ||
+        normalizedRole.includes("CUSTOMER")
+      ) {
         sessionStorage.setItem("userType", "USER");
         sessionStorage.setItem("userID", id);
         localStorage.setItem("userType", "USER");
         localStorage.setItem("userID", id);
         toast.success("Login successful!");
         navigate("/userprofile");
-      } else if (type === "ADMIN" || role === "ADMIN") {
+      } else if (normalizedRole.includes("ADMIN")) {
         sessionStorage.setItem("userType", "ADMIN");
         sessionStorage.setItem("adminId", id);
         localStorage.setItem("userType", "ADMIN");
         localStorage.setItem("adminId", id);
         toast.success("Welcome back, Admin!");
         navigate("/admindashboard");
+      } else if (id) {
+        sessionStorage.setItem("userType", "USER");
+        sessionStorage.setItem("userID", id);
+        localStorage.setItem("userType", "USER");
+        localStorage.setItem("userID", id);
+        toast.success("Login successful!");
+        navigate("/userprofile");
       } else {
         toast.error(message || "Invalid credentials");
       }

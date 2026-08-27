@@ -42,9 +42,33 @@ const Signup = () => {
 
     setLoading(true);
     apiClient
-      .post("/api/v1/auth/register", signupuser)
-      .then(() => {
-        toast.success("Account created successfully! Please sign in.");
+      .post("/api/v1/auth/register", {
+        ...signupuser,
+        email: signupuser.email.trim().toLowerCase(),
+        password: signupuser.password.trim(),
+      })
+      .then((response) => {
+        const data = response.data.data || response.data;
+        const { token, accessToken, refreshToken, id } = data;
+
+        const activeToken = accessToken || token;
+        if (activeToken) {
+          localStorage.setItem("token", activeToken);
+          localStorage.setItem("accessToken", activeToken);
+          sessionStorage.setItem("token", activeToken);
+        }
+        if (refreshToken) {
+          localStorage.setItem("refreshToken", refreshToken);
+          sessionStorage.setItem("refreshToken", refreshToken);
+        }
+        if (id) {
+          sessionStorage.setItem("userType", "USER");
+          sessionStorage.setItem("userID", id);
+          localStorage.setItem("userType", "USER");
+          localStorage.setItem("userID", id);
+        }
+
+        toast.success("Account created successfully! Welcome to FLASH.");
         setSignupuser({
           name: "",
           email: "",
@@ -53,7 +77,7 @@ const Signup = () => {
           address: "",
           agreement: false,
         });
-        navigate("/login");
+        navigate("/userprofile");
       })
       .catch((err) => {
         console.error("Error:", err.response);

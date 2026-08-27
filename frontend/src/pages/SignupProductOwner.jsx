@@ -32,15 +32,35 @@ const SignupProductOwner = () => {
     }
 
     const signupData = {
-      productOwnerName: signupuser.productOwnerName,
-      productOwnerEmail: signupuser.productOwnerEmail,
-      productOwnerPassword: signupuser.productOwnerPassword,
+      productOwnerName: signupuser.productOwnerName.trim(),
+      productOwnerEmail: signupuser.productOwnerEmail.trim().toLowerCase(),
+      productOwnerPassword: signupuser.productOwnerPassword.trim(),
       productOwnerNumber: Number(signupuser.productOwnerNumber),
     };
 
     try {
-      await apiClient.post("/api/v1/auth/seller/register", signupData);
-      toast.success("Seller registration successful!");
+      const response = await apiClient.post("/api/v1/auth/seller/register", signupData);
+      const data = response.data.data || response.data;
+      const { token, accessToken, refreshToken, id } = data;
+
+      const activeToken = accessToken || token;
+      if (activeToken) {
+        localStorage.setItem("token", activeToken);
+        localStorage.setItem("accessToken", activeToken);
+        sessionStorage.setItem("token", activeToken);
+      }
+      if (refreshToken) {
+        localStorage.setItem("refreshToken", refreshToken);
+        sessionStorage.setItem("refreshToken", refreshToken);
+      }
+      if (id) {
+        sessionStorage.setItem("userType", "PRODUCT_OWNER");
+        sessionStorage.setItem("productOwnerId", id);
+        localStorage.setItem("userType", "PRODUCT_OWNER");
+        localStorage.setItem("productOwnerId", id);
+      }
+
+      toast.success("Seller registration successful! Welcome to FLASH.");
       setSignupuser({
         productOwnerName: "",
         productOwnerEmail: "",
@@ -48,7 +68,7 @@ const SignupProductOwner = () => {
         productOwnerNumber: "",
         agreement: false,
       });
-      navigate("/login");
+      navigate("/productlist");
     } catch (error) {
       console.error("Error during seller signup:", error);
       const msg = error.response?.data?.message || "Signup failed";
