@@ -2,276 +2,126 @@ package com.ecommerce.com.ecommerce.flash.controller;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.ecommerce.com.ecommerce.flash.dao.ProductDao;
-import com.ecommerce.com.ecommerce.flash.entity.Product;
-import com.ecommerce.com.ecommerce.flash.entity.ProductOwner;
-import com.ecommerce.com.ecommerce.flash.entity.ProductStatus;
-import com.ecommerce.com.ecommerce.flash.repository.ProductOwnerRepository;
-import com.ecommerce.com.ecommerce.flash.repository.ProductRepository;
+import com.ecommerce.com.ecommerce.flash.dto.ApiResponse;
+import com.ecommerce.com.ecommerce.flash.dto.ProductRequest;
+import com.ecommerce.com.ecommerce.flash.dto.ProductResponse;
+import com.ecommerce.com.ecommerce.flash.service.ProductService;
+
+import jakarta.validation.Valid;
 
 @CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174"}, allowCredentials = "true")
 @RestController
 @RequestMapping("/products")
 public class ProductController {
 
-    @Autowired
-    private ProductDao productDao;
+    private final ProductService productService;
 
-    @Autowired
-    private ProductOwnerRepository productOwnerRepository;
-
-    @Autowired
-    private ProductRepository productRepository;
-    
-    // DTO for Product Data Transfer
-    public static class ProductDTO {
-        private Long id;
-        private String name;
-        private String description;
-        private double price;
-        private int stock;
-        private String category;
-        private boolean available;
-        private List<String> productSizes;
-        private List<String> productColors;
-        private String productImageBase64;
-        private ProductOwner productOwner;
-        private boolean approved;
-
-        // Getters and Setters
-        public Long getId() { return id; }
-        public void setId(Long id) { this.id = id; }
-        public String getName() { return name; }
-        public void setName(String name) { this.name = name; }
-        public String getDescription() { return description; }
-        public void setDescription(String description) { this.description = description; }
-        public double getPrice() { return price; }
-        public void setPrice(double price) { this.price = price; }
-        public int getStock() { return stock; }
-        public void setStock(int stock) { this.stock = stock; }
-        public String getCategory() { return category; }
-        public void setCategory(String category) { this.category = category; }
-        public boolean isAvailable() { return available; }
-        public void setAvailable(boolean available) { this.available = available; }
-        public List<String> getProductSizes() { return productSizes; }
-        public void setProductSizes(List<String> productSizes) { this.productSizes = productSizes; }
-        public List<String> getProductColors() { return productColors; }
-        public void setProductColors(List<String> productColors) { this.productColors = productColors; }
-        public String getProductImageBase64() { return productImageBase64; }
-        public void setProductImageBase64(String productImageBase64) { this.productImageBase64 = productImageBase64; }
-        public ProductOwner getProductOwner() { return productOwner; }
-        public void setProductOwner(ProductOwner productOwner) { this.productOwner = productOwner; }
-        public boolean isApproved() { return approved; }
-        public void setApproved(boolean approved) { this.approved = approved; }
+    public ProductController(ProductService productService) {
+        this.productService = productService;
     }
-    
-    // Convert Product -> ProductDTO
-    private ProductDTO convertToDTO(Product product) {
-        ProductDTO dto = new ProductDTO();
-        dto.setId(product.getId());
-        dto.setName(product.getName());
-        dto.setDescription(product.getDescription());
-        dto.setPrice(product.getPrice());
-        dto.setStock(product.getStock());
-        dto.setCategory(product.getCategory());
-        dto.setAvailable(product.isAvailable());
-        dto.setProductSizes(product.getProductSizes());
-        dto.setProductColors(product.getProductColors());
-        dto.setProductOwner(product.getProductOwner());
-        dto.setApproved(product.isApproved());
-        if (product.getProductImage() != null) {
-            dto.setProductImageBase64(Base64.getEncoder().encodeToString(product.getProductImage()));
-        }
-        return dto;
-    }
-    
-    // Fetch All Products
+
     @GetMapping
-    public ResponseEntity<List<ProductDTO>> getAllProducts() {
-        List<Product> products = productDao.getAllProducts();
-        List<ProductDTO> productDTOs = products.stream()
-                                               .map(this::convertToDTO)
-                                               .collect(Collectors.toList());
-        return ResponseEntity.ok(productDTOs);
+    public ResponseEntity<ApiResponse<List<ProductResponse>>> getAllProducts() {
+        List<ProductResponse> products = productService.getAllProducts();
+        return ResponseEntity.ok(ApiResponse.success("Products retrieved successfully", products));
     }
-    
-    // Fetch Product by ID
+
     @GetMapping("/{id}")
-    public ResponseEntity<?> getProductById(@PathVariable Long id) {
-        Optional<Product> optionalProduct = productDao.getProductById(id);
-        if (optionalProduct.isPresent()) {
-            return ResponseEntity.ok(convertToDTO(optionalProduct.get()));
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found.");
-        }
+    public ResponseEntity<ApiResponse<ProductResponse>> getProductById(@PathVariable Long id) {
+        ProductResponse product = productService.getProductById(id);
+        return ResponseEntity.ok(ApiResponse.success("Product retrieved successfully", product));
     }
-    
-    // Fetch Approved Products
+
     @GetMapping("/approved")
-    public ResponseEntity<List<ProductDTO>> getApprovedProducts() {
-        List<Product> approvedProducts = productRepository.findByApproved(true);
-        if (approvedProducts.isEmpty()) {
-            approvedProducts = productRepository.findAll();
-        }
-        List<ProductDTO> productDTOs = approvedProducts.stream()
-                                                       .map(this::convertToDTO)
-                                                       .collect(Collectors.toList());
-        return ResponseEntity.ok(productDTOs);
+    public ResponseEntity<ApiResponse<List<ProductResponse>>> getApprovedProducts() {
+        List<ProductResponse> approvedProducts = productService.getApprovedProducts();
+        return ResponseEntity.ok(ApiResponse.success("Approved products retrieved successfully", approvedProducts));
     }
-    
-    // Approve a Product
+
     @PutMapping("/{id}/approve")
-    public ResponseEntity<?> approveProduct(@PathVariable Long id) {
-        Optional<Product> optionalProduct = productDao.getProductById(id);
-        if (optionalProduct.isPresent()) {
-            Product product = optionalProduct.get();
-            product.setApproved(true);
-            productDao.saveProduct(product);
-            return ResponseEntity.ok("Product approved successfully.");
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found.");
-        }
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<ProductResponse>> approveProduct(@PathVariable Long id) {
+        ProductResponse response = productService.approveProduct(id);
+        return ResponseEntity.ok(ApiResponse.success("Product approved successfully", response));
     }
-    
-    // Update Product Details (JSON)
+
+    @PutMapping("/{id}/reject")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<ProductResponse>> rejectProduct(@PathVariable Long id) {
+        ProductResponse response = productService.rejectProduct(id);
+        return ResponseEntity.ok(ApiResponse.success("Product rejected successfully", response));
+    }
+
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateProduct(@PathVariable Long id, @RequestBody ProductDTO updatedData) {
-        Optional<Product> optionalProduct = productDao.getProductById(id);
-        if (!optionalProduct.isPresent()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found.");
-        }
-        try {
-            Product product = optionalProduct.get();
-            if (updatedData.getName() != null) product.setName(updatedData.getName());
-            if (updatedData.getDescription() != null) product.setDescription(updatedData.getDescription());
-            if (updatedData.getPrice() > 0) product.setPrice(updatedData.getPrice());
-            product.setStock(updatedData.getStock());
-            if (updatedData.getCategory() != null) product.setCategory(updatedData.getCategory());
-            if (updatedData.getProductSizes() != null) product.setProductSizes(updatedData.getProductSizes());
-            if (updatedData.getProductColors() != null) product.setProductColors(updatedData.getProductColors());
-            
-            // Handle base64 image if provided in DTO
-            String imgBase64 = updatedData.getProductImageBase64();
-            if (imgBase64 != null && !imgBase64.isEmpty()) {
-                if (imgBase64.contains(",")) {
-                    imgBase64 = imgBase64.split(",")[1];
-                }
-                product.setProductImage(Base64.getDecoder().decode(imgBase64));
-            }
-            
-            Product saved = productDao.saveProduct(product);
-            return ResponseEntity.ok(convertToDTO(saved));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error updating product: " + e.getMessage());
-        }
+    @PreAuthorize("hasAnyRole('SELLER', 'ADMIN')")
+    public ResponseEntity<ApiResponse<ProductResponse>> updateProduct(@PathVariable Long id, @RequestBody ProductRequest request) {
+        ProductResponse response = productService.updateProduct(id, request);
+        return ResponseEntity.ok(ApiResponse.success("Product updated successfully", response));
     }
-    
-    // Delete a Product
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteProduct(@PathVariable Long id) {
-        try {
-            Optional<Product> prodOpt = productDao.getProductById(id);
-            if (prodOpt.isPresent()) {
-                Product product = prodOpt.get();
-                if (product.getProductSizes() != null) {
-                    product.getProductSizes().clear();
-                }
-                if (product.getProductColors() != null) {
-                    product.getProductColors().clear();
-                }
-                productDao.saveProduct(product);
-                productDao.deleteProduct(id);
-                return ResponseEntity.ok("Product deleted successfully.");
-            } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found.");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error deleting product.");
-        }
+    @PreAuthorize("hasAnyRole('SELLER', 'ADMIN')")
+    public ResponseEntity<ApiResponse<String>> deleteProduct(@PathVariable Long id) {
+        productService.deleteProduct(id);
+        return ResponseEntity.ok(ApiResponse.success("Product deleted successfully.", null));
     }
-    
-    // Add Product (multipart/form-data)
+
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> addProduct(
-        @RequestParam("name") String name,
-        @RequestParam("description") String description,
-        @RequestParam("price") double price,
-        @RequestParam("stock") int stock,
-        @RequestParam("category") String category,
-        @RequestParam("productOwnerId") Long productOwnerId,
-        @RequestParam(value = "productSizes", required = false) String productSizes,    // Comma-separated sizes
-        @RequestParam(value = "productColors", required = false) String productColors,  // Comma-separated colors
-        @RequestParam(value = "available", defaultValue = "true") boolean available,
-        @RequestParam(value = "images", required = false) List<MultipartFile> images
-    ) {
-        try {
-            Product product = new Product();
-            product.setName(name);
-            product.setDescription(description);
-            product.setPrice(price);
-            product.setStock(stock);
-            product.setCategory(category);
-            product.setAvailable(available);
-            product.setApproved(true);
-            product.setStatus(ProductStatus.APPROVED);
-            
-            if (productSizes != null && !productSizes.isEmpty()) {
-                List<String> sizes = Arrays.asList(productSizes.split(","));
-                product.setProductSizes(sizes);
-            } else {
-                product.setProductSizes(Collections.emptyList());
-            }
-            if (productColors != null && !productColors.isEmpty()) {
-                List<String> colors = Arrays.asList(productColors.split(","));
-                product.setProductColors(colors);
-            } else {
-                product.setProductColors(Collections.emptyList());
-            }
-            
-            if (images != null && !images.isEmpty()) {
-                MultipartFile file = images.get(0);
-                product.setProductImage(file.getBytes());
-            }
-            
-            Optional<ProductOwner> optOwner = productOwnerRepository.findById(productOwnerId);
-            if (!optOwner.isPresent()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid product owner ID");
-            }
-            product.setProductOwner(optOwner.get());
-            
-            Product savedProduct = productDao.saveProduct(product);
-            return ResponseEntity.ok(convertToDTO(savedProduct));
-        } catch (IOException e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing image file.");
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error adding product: " + e.getMessage());
+    @PreAuthorize("hasAnyRole('SELLER', 'ADMIN')")
+    public ResponseEntity<ApiResponse<ProductResponse>> addProduct(
+            @RequestParam("name") String name,
+            @RequestParam("description") String description,
+            @RequestParam("price") double price,
+            @RequestParam("stock") int stock,
+            @RequestParam("category") String category,
+            @RequestParam("productOwnerId") Long productOwnerId,
+            @RequestParam(value = "productSizes", required = false) String productSizes,
+            @RequestParam(value = "productColors", required = false) String productColors,
+            @RequestParam(value = "available", defaultValue = "true") boolean available,
+            @RequestParam(value = "images", required = false) List<MultipartFile> images
+    ) throws IOException {
+        ProductRequest request = new ProductRequest();
+        request.setName(name);
+        request.setDescription(description);
+        request.setPrice(price);
+        request.setStock(stock);
+        request.setCategory(category);
+        request.setProductOwnerId(productOwnerId);
+        request.setAvailable(available);
+
+        if (productSizes != null && !productSizes.isEmpty()) {
+            request.setProductSizes(Arrays.asList(productSizes.split(",")));
+        } else {
+            request.setProductSizes(Collections.emptyList());
         }
+        if (productColors != null && !productColors.isEmpty()) {
+            request.setProductColors(Arrays.asList(productColors.split(",")));
+        } else {
+            request.setProductColors(Collections.emptyList());
+        }
+
+        byte[] imageBytes = null;
+        if (images != null && !images.isEmpty()) {
+            imageBytes = images.get(0).getBytes();
+        }
+
+        ProductResponse response = productService.createProduct(request, imageBytes);
+        return ResponseEntity.ok(ApiResponse.success("Product added successfully", response));
     }
-    
-    // NEW: Fetch Products by Owner ID
+
     @GetMapping("/owner/{ownerId}")
-    public ResponseEntity<?> getProductsByOwner(@PathVariable Long ownerId) {
-        List<Product> products = productDao.getProductsByOwnerId(ownerId);
-        List<ProductDTO> productDTOs = products.stream()
-                                               .map(this::convertToDTO)
-                                               .collect(Collectors.toList());
-        return ResponseEntity.ok(productDTOs);
+    @PreAuthorize("hasAnyRole('SELLER', 'ADMIN')")
+    public ResponseEntity<ApiResponse<List<ProductResponse>>> getProductsByOwner(@PathVariable Long ownerId) {
+        List<ProductResponse> products = productService.getProductsByOwnerId(ownerId);
+        return ResponseEntity.ok(ApiResponse.success("Seller products retrieved successfully", products));
     }
 }

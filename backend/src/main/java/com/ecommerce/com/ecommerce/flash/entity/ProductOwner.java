@@ -49,7 +49,7 @@ public class ProductOwner {
     private String productOwnerEmail;
     
     @NotBlank(message = "Product owner password is required")
-    @JsonProperty("productOwnerPassword")
+    @JsonProperty(value = "productOwnerPassword", access = JsonProperty.Access.WRITE_ONLY)
     @Column(name = "product_owner_password", nullable = false)
     private String productOwnerPassword;
     

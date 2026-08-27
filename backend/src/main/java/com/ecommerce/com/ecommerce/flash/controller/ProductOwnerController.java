@@ -1,84 +1,51 @@
 package com.ecommerce.com.ecommerce.flash.controller;
 
 import java.util.List;
-import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import com.ecommerce.com.ecommerce.flash.dao.ProductOwnerDao;
-import com.ecommerce.com.ecommerce.flash.entity.ProductOwner;
-import com.ecommerce.com.ecommerce.flash.repository.ProductOwnerRepository;
-import com.ecommerce.com.ecommerce.flash.repository.ProductRepository;
+import com.ecommerce.com.ecommerce.flash.dto.ApiResponse;
+import com.ecommerce.com.ecommerce.flash.dto.ProductOwnerResponse;
+import com.ecommerce.com.ecommerce.flash.dto.ProductOwnerUpdateRequest;
+import com.ecommerce.com.ecommerce.flash.service.ProductOwnerService;
 
 import jakarta.validation.Valid;
 
-@CrossOrigin(origins = {"http://localhost:5174","http://localhost:5173"}, allowCredentials = "true")
+@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174"}, allowCredentials = "true")
 @RestController
 @RequestMapping("/product-owners")
 public class ProductOwnerController {
 
-    @Autowired
-    private ProductOwnerDao productOwnerDao;
+    private final ProductOwnerService productOwnerService;
 
-    @Autowired
-    private ProductOwnerRepository productOwnerRepository;
-
-    @Autowired
-    private ProductRepository productRepository;
-
-    @GetMapping({"/email/{email}", "/{email:.+@.+\\..+}"}) // Support /email/{email} and regex path
-    public ResponseEntity<?> getProductOwnerByEmail(@PathVariable String email) {
-        Optional<ProductOwner> productOwner = productOwnerDao.getProductOwnerByEmail(email);
-        return productOwner.map(ResponseEntity::ok)
-                           .orElse(ResponseEntity.notFound().build());
+    public ProductOwnerController(ProductOwnerService productOwnerService) {
+        this.productOwnerService = productOwnerService;
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<?> registerProductOwner(@Valid @RequestBody ProductOwner productOwner) {
-        try {
-            if (productOwnerDao.getProductOwnerByEmail(productOwner.getProductOwnerEmail()).isPresent()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body("Product owner with this email already exists.");
-            }
-            ProductOwner savedOwner = productOwnerRepository.save(productOwner);
-            return ResponseEntity.ok(savedOwner);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error registering product owner: " + e.getMessage());
-        }
+    @GetMapping({"/email/{email}", "/{email:.+@.+\\..+}"})
+    public ResponseEntity<ApiResponse<ProductOwnerResponse>> getProductOwnerByEmail(@PathVariable String email) {
+        ProductOwnerResponse response = productOwnerService.getProductOwnerByEmail(email);
+        return ResponseEntity.ok(ApiResponse.success("Seller profile retrieved successfully", response));
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<ProductOwner>> getAllProductOwners() {
-        List<ProductOwner> owners = productOwnerRepository.findAll();
-        return ResponseEntity.ok(owners);
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<List<ProductOwnerResponse>>> getAllProductOwners() {
+        List<ProductOwnerResponse> responses = productOwnerService.getAllProductOwners();
+        return ResponseEntity.ok(ApiResponse.success("Product owners retrieved successfully", responses));
     }
 
     @GetMapping("/{ownerId}")
-    public ResponseEntity<ProductOwner> getProductOwnerById(@PathVariable Long ownerId) {
-        Optional<ProductOwner> owner = productOwnerRepository.findById(ownerId);
-        return owner.map(ResponseEntity::ok)
-                    .orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<ApiResponse<ProductOwnerResponse>> getProductOwnerById(@PathVariable Long ownerId) {
+        ProductOwnerResponse response = productOwnerService.getProductOwnerById(ownerId);
+        return ResponseEntity.ok(ApiResponse.success("Seller profile retrieved successfully", response));
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateProductOwner(@PathVariable Long id,
-                                                @RequestBody ProductOwner updatedOwner) {
-        Optional<ProductOwner> existingOwner = productOwnerRepository.findById(id);
-
-        if (existingOwner.isPresent()) {
-            ProductOwner owner = existingOwner.get();
-            owner.setProductOwnerName(updatedOwner.getProductOwnerName());
-            owner.setProductOwnerNumber(updatedOwner.getProductOwnerNumber());
-            productOwnerRepository.save(owner);
-            return ResponseEntity.ok("Product owner updated successfully!");
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                 .body("Product owner not found.");
-        }
+    public ResponseEntity<ApiResponse<ProductOwnerResponse>> updateProductOwner(@PathVariable Long id, @Valid @RequestBody ProductOwnerUpdateRequest updateRequest) {
+        ProductOwnerResponse response = productOwnerService.updateProductOwner(id, updateRequest);
+        return ResponseEntity.ok(ApiResponse.success("Product owner updated successfully", response));
     }
 }

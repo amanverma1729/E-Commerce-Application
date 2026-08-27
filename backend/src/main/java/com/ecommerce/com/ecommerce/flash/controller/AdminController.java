@@ -1,67 +1,57 @@
 package com.ecommerce.com.ecommerce.flash.controller;
 
 import java.util.List;
-import java.util.Optional;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import com.ecommerce.com.ecommerce.flash.dao.AdminDao;
+import com.ecommerce.com.ecommerce.flash.dto.AdminResponse;
+import com.ecommerce.com.ecommerce.flash.dto.ApiResponse;
 import com.ecommerce.com.ecommerce.flash.entity.Admin;
+import com.ecommerce.com.ecommerce.flash.service.AdminService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/admins")
+@PreAuthorize("hasRole('ADMIN')")
 @CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174"}, allowCredentials = "true")
 public class AdminController {
 
-    @Autowired
-    private AdminDao adminDao;
+    private final AdminService adminService;
 
-    // Create a new admin
+    public AdminController(AdminService adminService) {
+        this.adminService = adminService;
+    }
+
     @PostMapping
-    public ResponseEntity<?> createAdmin(@RequestBody Admin admin) {
-        Admin savedAdmin = adminDao.createAdmin(admin);
-        return ResponseEntity.ok(savedAdmin);
+    public ResponseEntity<ApiResponse<AdminResponse>> createAdmin(@Valid @RequestBody Admin admin) {
+        AdminResponse response = adminService.createAdmin(admin);
+        return ResponseEntity.ok(ApiResponse.success("Admin created successfully", response));
     }
 
-    // Get all admins
     @GetMapping
-    public ResponseEntity<List<Admin>> getAllAdmins() {
-        List<Admin> admins = adminDao.getAllAdmins();
-        return ResponseEntity.ok(admins);
+    public ResponseEntity<ApiResponse<List<AdminResponse>>> getAllAdmins() {
+        List<AdminResponse> response = adminService.getAllAdmins();
+        return ResponseEntity.ok(ApiResponse.success("Admins retrieved successfully", response));
     }
 
-    // Get admin by id
     @GetMapping("/{id}")
-    public ResponseEntity<?> getAdminById(@PathVariable Long id) {
-        Optional<Admin> adminOpt = adminDao.getAdminById(id);
-        if (adminOpt.isPresent()) {
-            return ResponseEntity.ok(adminOpt.get());
-        } else {
-            return ResponseEntity.status(404).body("Admin not found with id: " + id);
-        }
+    public ResponseEntity<ApiResponse<AdminResponse>> getAdminById(@PathVariable Long id) {
+        AdminResponse response = adminService.getAdminById(id);
+        return ResponseEntity.ok(ApiResponse.success("Admin retrieved successfully", response));
     }
 
-    // Update admin by id
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateAdmin(@PathVariable Long id, @RequestBody Admin adminDetails) {
-        Admin updatedAdmin = adminDao.updateAdmin(id, adminDetails);
-        if (updatedAdmin != null) {
-            return ResponseEntity.ok(updatedAdmin);
-        } else {
-            return ResponseEntity.status(404).body("Admin not found with id: " + id);
-        }
+    public ResponseEntity<ApiResponse<AdminResponse>> updateAdmin(@PathVariable Long id, @RequestBody Admin adminDetails) {
+        AdminResponse response = adminService.updateAdmin(id, adminDetails);
+        return ResponseEntity.ok(ApiResponse.success("Admin updated successfully", response));
     }
 
-    // Delete admin by id
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteAdmin(@PathVariable Long id) {
-        Optional<Admin> adminOpt = adminDao.getAdminById(id);
-        if (adminOpt.isPresent()) {
-            adminDao.deleteAdmin(id);
-            return ResponseEntity.ok("Admin deleted successfully.");
-        } else {
-            return ResponseEntity.status(404).body("Admin not found with id: " + id);
-        }
+    public ResponseEntity<ApiResponse<String>> deleteAdmin(@PathVariable Long id) {
+        adminService.deleteAdmin(id);
+        return ResponseEntity.ok(ApiResponse.success("Admin deleted successfully.", null));
     }
 }

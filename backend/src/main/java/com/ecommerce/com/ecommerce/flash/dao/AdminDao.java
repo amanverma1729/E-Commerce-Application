@@ -42,7 +42,7 @@ public class AdminDao {
         adminRepository.deleteById(id);
     }
     public Admin findByEmailAdmin(String email) {
-        return adminRepository.findByAdminEmail(email);
+        return adminRepository.findByAdminEmail(email).orElse(null);
     }
 }
 

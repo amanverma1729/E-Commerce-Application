@@ -35,6 +35,7 @@ public class Admin {
     @Column(nullable = false, unique = true)
     private String adminEmail;
 
+    @com.fasterxml.jackson.annotation.JsonProperty(access = com.fasterxml.jackson.annotation.JsonProperty.Access.WRITE_ONLY)
     @Column(nullable = false)
     private String adminPassword;
 
