@@ -264,51 +264,76 @@
 .priceFilterForm {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  width: 100%;
+  max-width: 100%;
 }
 
 .priceInput {
-  width: 80px;
-  padding: 6px 10px;
+  flex: 1 1 0%;
+  min-width: 0;
+  width: 0;
+  padding: 8px 10px;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-light);
-  font-size: 0.82rem;
+  background: var(--bg-app);
+  color: var(--text-main);
+  font-size: 16px;
   outline: none;
+  box-sizing: border-box;
+  transition: border-color var(--transition-fast);
 }
 
 .priceInput:focus {
   border-color: var(--brand-primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
 }
 
 .dash {
   color: var(--text-dim);
+  font-weight: 700;
+  flex-shrink: 0;
 }
 
 .applyBtn {
-  padding: 6px 12px;
+  padding: 8px 16px;
   border-radius: var(--radius-md);
   background: var(--brand-secondary);
   color: #ffffff;
   border: none;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 700;
   cursor: pointer;
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+}
+
+.applyBtn:hover {
+  background: var(--brand-secondary-hover);
+}
+
+.applyBtn:active {
+  transform: scale(0.96);
 }
 
 .sortWrapper {
   display: flex;
   align-items: center;
   gap: 8px;
+  width: 100%;
 }
 
 .sortLabel {
   font-size: 0.85rem;
   font-weight: 700;
   color: var(--text-muted);
+  flex-shrink: 0;
 }
 
 .sortSelect {
-  padding: 7px 12px;
+  flex: 1;
+  min-width: 0;
+  padding: 8px 12px;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-light);
   background: var(--bg-app);
@@ -327,6 +352,23 @@
   border-radius: var(--radius-lg);
   text-align: center;
   color: var(--color-danger);
+}
+
+@media (min-width: 601px) {
+  .priceFilterForm {
+    width: auto;
+  }
+  .priceInput {
+    flex: none;
+    width: 85px;
+    font-size: 0.82rem;
+  }
+  .sortWrapper {
+    width: auto;
+  }
+  .sortSelect {
+    flex: none;
+  }
 }
 
 @media (max-width: 900px) {
@@ -383,25 +425,13 @@
   }
   .toolbarRow {
     padding: 14px 16px;
+    overflow: hidden;
   }
   .toolbarRight {
     flex-direction: column;
     align-items: stretch;
     gap: 12px;
-  }
-  .priceFilterForm {
     width: 100%;
-  }
-  .priceInput {
-    flex: 1;
-    width: auto;
-  }
-  .sortWrapper {
-    width: 100%;
-    justify-content: space-between;
-  }
-  .sortSelect {
-    flex: 1;
   }
 }
 
