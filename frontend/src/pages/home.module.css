@@ -335,6 +335,70 @@
   }
   .toolbarRow {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
+  }
+  .toolbarRight {
+    width: 100%;
+    justify-content: space-between;
   }
 }
+
+@media (max-width: 600px) {
+  .pageWrapper {
+    padding: 16px 12px 40px;
+  }
+  .heroSection {
+    padding: 24px 16px;
+    margin-bottom: 20px;
+    border-radius: var(--radius-lg);
+  }
+  .heroTitle {
+    font-size: 1.8rem;
+  }
+  .heroSubtitle {
+    font-size: 0.92rem;
+  }
+  .heroCtaGroup {
+    flex-direction: column;
+    width: 100%;
+  }
+  .heroCtaGroup a {
+    width: 100%;
+    justify-content: center;
+  }
+  .trustRow {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .categoryPills {
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .categoryBtn {
+    padding: 8px 16px;
+    font-size: 0.82rem;
+  }
+  .toolbarRow {
+    padding: 14px 16px;
+  }
+  .toolbarRight {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .priceFilterForm {
+    width: 100%;
+  }
+  .priceInput {
+    flex: 1;
+    width: auto;
+  }
+  .sortWrapper {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .sortSelect {
+    flex: 1;
+  }
+}
+

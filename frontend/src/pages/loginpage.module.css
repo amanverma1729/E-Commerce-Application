@@ -193,3 +193,18 @@
 .sellerLink:hover {
   text-decoration: underline;
 }
+
+@media (max-width: 600px) {
+  .pageWrapper {
+    padding: 24px 12px;
+    min-height: auto;
+  }
+  .card {
+    padding: 28px 18px;
+    border-radius: var(--radius-lg);
+  }
+  .title {
+    font-size: 1.4rem;
+  }
+}
+

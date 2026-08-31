@@ -234,3 +234,18 @@
   }
 }
 
+@media (max-width: 600px) {
+  .pageWrapper {
+    padding: 16px 12px 40px;
+  }
+  .formCard {
+    padding: 20px 14px;
+    border-radius: var(--radius-lg);
+    gap: 20px;
+  }
+  .title {
+    font-size: 1.4rem;
+  }
+}
+
+

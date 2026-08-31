@@ -435,3 +435,18 @@
     display: flex;
   }
 }
+
+@media (max-width: 600px) {
+  .navInner {
+    padding: 0 14px;
+    height: 64px;
+  }
+  .brandLogo img {
+    height: 38px !important;
+  }
+  .mobileDrawerContent {
+    width: 290px;
+    max-width: 88vw;
+  }
+}
+

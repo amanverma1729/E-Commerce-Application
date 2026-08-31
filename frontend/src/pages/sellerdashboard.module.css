@@ -305,3 +305,32 @@
 @media (max-width: 900px) {
   .kpiRow { grid-template-columns: 1fr; }
 }
+
+@media (max-width: 600px) {
+  .pageWrapper {
+    padding: 16px 12px 40px;
+    gap: 16px;
+  }
+  .headerCard {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 18px 16px;
+  }
+  .headerCard button {
+    width: 100%;
+    justify-content: center;
+  }
+  .tableCard {
+    padding: 16px;
+    border-radius: var(--radius-lg);
+  }
+  .inputRow {
+    grid-template-columns: 1fr;
+  }
+  .modalCard {
+    padding: 20px 16px;
+    max-width: 95vw;
+  }
+}
+

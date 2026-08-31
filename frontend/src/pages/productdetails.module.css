@@ -398,3 +398,39 @@
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 600px) {
+  .pageWrapper {
+    padding: 16px 12px 40px;
+  }
+  .backBtn {
+    margin-bottom: 16px;
+    padding: 7px 14px;
+    font-size: 0.82rem;
+  }
+  .detailsGrid {
+    padding: 16px;
+    gap: 20px;
+    border-radius: var(--radius-lg);
+  }
+  .productTitle {
+    font-size: 1.4rem;
+  }
+  .currentPrice {
+    font-size: 1.6rem;
+  }
+  .originalPrice {
+    font-size: 1rem;
+  }
+  .priceCard {
+    padding: 14px 16px;
+  }
+  .actionButtonsRow {
+    gap: 12px;
+  }
+  .addToBagBtn, .buyNowBtn {
+    padding: 12px;
+    font-size: 0.95rem;
+  }
+}
+

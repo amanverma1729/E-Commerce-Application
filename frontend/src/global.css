@@ -213,3 +213,24 @@ input, select, textarea {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
+
+/* Hide scrollbar utility for touch drag pill bars */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Mobile Global Breakpoint Adjustments */
+@media (max-width: 600px) {
+  .app-container {
+    padding: 0 14px;
+  }
+  .btn-primary, .btn-dark, .btn-outline {
+    padding: 12px 18px;
+    font-size: 0.9rem;
+    min-height: 44px;
+  }
+}

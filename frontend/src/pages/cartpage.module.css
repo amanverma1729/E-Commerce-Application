@@ -401,3 +401,37 @@
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 600px) {
+  .pageWrapper {
+    padding: 16px 12px 40px;
+  }
+  .navRow {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .cartCard {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 14px;
+  }
+  .itemActions {
+    width: 100%;
+    justify-content: space-between;
+    padding-top: 10px;
+    border-top: 1px dashed var(--border-light);
+    gap: 12px;
+  }
+  .itemSubtotalBox {
+    align-items: flex-end;
+  }
+  .summaryCard {
+    padding: 20px 16px;
+    border-radius: var(--radius-lg);
+  }
+  .grandTotalVal {
+    font-size: 1.3rem;
+  }
+}
+

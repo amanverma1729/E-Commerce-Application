@@ -225,17 +225,34 @@
 }
 
 @media (max-width: 600px) {
+  .footerContainer {
+    padding: 32px 14px 20px;
+  }
   .topSection {
     flex-direction: column;
     align-items: flex-start;
+    gap: 24px;
   }
   .subscribeForm {
     width: 100%;
+    flex-direction: column;
   }
   .subscribeForm input {
     width: 100%;
   }
+  .subscribeForm button {
+    width: 100%;
+    justify-content: center;
+  }
   .linksGrid {
     grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .bottomSection {
+    flex-direction: column-reverse;
+    align-items: center;
+    text-align: center;
+    gap: 12px;
   }
 }
+

@@ -186,7 +186,25 @@
 }
 
 @media (max-width: 600px) {
+  .pageWrapper {
+    padding: 16px 12px 40px;
+    gap: 16px;
+  }
+  .headerCard {
+    padding: 20px 16px;
+    flex-direction: column;
+    text-align: center;
+    gap: 14px;
+  }
+  .nameRow {
+    justify-content: center;
+  }
   .grid {
     grid-template-columns: 1fr;
   }
+  .infoCard {
+    padding: 20px 16px;
+    border-radius: var(--radius-lg);
+  }
 }
+

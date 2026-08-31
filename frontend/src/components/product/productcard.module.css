@@ -211,3 +211,39 @@
   opacity: 0.7;
   cursor: not-allowed;
 }
+
+@media (max-width: 600px) {
+  .detailsContent {
+    padding: 10px 12px;
+    gap: 6px;
+  }
+  .productTitle {
+    font-size: 0.86rem;
+    height: 2.6em;
+  }
+  .currentPrice {
+    font-size: 1rem;
+  }
+  .originalPrice {
+    font-size: 0.78rem;
+  }
+  .wishlistBtn {
+    width: 32px;
+    height: 32px;
+    top: 8px;
+    right: 8px;
+    font-size: 0.95rem;
+  }
+  .verifiedBadge {
+    top: 8px;
+    left: 8px;
+    padding: 2px 6px;
+    font-size: 0.65rem;
+  }
+  .addToCartBtn {
+    padding: 8px 10px;
+    font-size: 0.82rem;
+    border-radius: var(--radius-sm);
+  }
+}
+

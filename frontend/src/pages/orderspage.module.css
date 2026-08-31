@@ -314,3 +314,31 @@
     gap: 10px;
   }
 }
+
+@media (max-width: 600px) {
+  .pageWrapper {
+    padding: 16px 12px 40px;
+  }
+  .headerCard {
+    padding: 16px;
+    gap: 12px;
+  }
+  .orderCard {
+    padding: 16px;
+    border-radius: var(--radius-lg);
+  }
+  .cardHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .cardFooter {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .itemRow {
+    gap: 10px;
+  }
+}
+

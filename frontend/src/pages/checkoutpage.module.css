@@ -339,3 +339,28 @@
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 600px) {
+  .pageWrapper {
+    padding: 16px 12px 40px;
+  }
+  .headerCard {
+    padding: 16px;
+    gap: 12px;
+  }
+  .pageTitle {
+    font-size: 1.25rem;
+  }
+  .formSection {
+    padding: 18px 14px;
+    border-radius: var(--radius-lg);
+  }
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+  .summaryCard {
+    padding: 18px 14px;
+    border-radius: var(--radius-lg);
+  }
+}
+
