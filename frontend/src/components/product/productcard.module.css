@@ -25,12 +25,17 @@
   position: relative;
   width: 100%;
   aspect-ratio: 4 / 5;
-  background: #f1f5f9;
+  background: #f8fafc;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .imageLink {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   height: 100%;
 }
@@ -38,7 +43,8 @@
 .productImage {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  padding: 10px;
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -205,6 +211,10 @@
 .addToCartBtn:hover:not(:disabled) {
   background: var(--brand-primary-hover);
   transform: translateY(-1px);
+}
+
+.addToCartBtn:active:not(:disabled) {
+  transform: scale(0.97);
 }
 
 .addToCartBtn:disabled {

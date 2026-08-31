@@ -96,6 +96,22 @@
   color: var(--color-success);
 }
 
+.progressBarTrack {
+  height: 6px;
+  background: var(--bg-subtle);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-top: 8px;
+  width: 100%;
+}
+
+.progressBarFill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--brand-primary), var(--color-success));
+  border-radius: var(--radius-full);
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 .itemsList {
   display: flex;
   flex-direction: column;

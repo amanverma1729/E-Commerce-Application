@@ -143,6 +143,11 @@ input, select, textarea {
   box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
 }
 
+.btn-primary:active {
+  transform: scale(0.97);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
+}
+
 /* Secondary Dark Button Utility */
 .btn-dark {
   display: inline-flex;
@@ -163,6 +168,10 @@ input, select, textarea {
 .btn-dark:hover {
   background: var(--brand-secondary-hover);
   transform: translateY(-1px);
+}
+
+.btn-dark:active {
+  transform: scale(0.97);
 }
 
 /* Outlined Secondary Button Utility */
@@ -186,6 +195,10 @@ input, select, textarea {
   background: var(--bg-app);
   border-color: var(--brand-primary);
   color: var(--brand-primary);
+}
+
+.btn-outline:active {
+  transform: scale(0.97);
 }
 
 /* Rating Pill Utility */

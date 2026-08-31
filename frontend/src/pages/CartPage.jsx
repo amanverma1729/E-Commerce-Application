@@ -82,7 +82,7 @@ const CartPage = () => {
           {/* Free Delivery Banner */}
           <div className={styles.deliveryBanner}>
             <FiTruck className={styles.bannerIcon} />
-            <div>
+            <div style={{ flex: 1 }}>
               {isFreeShipping ? (
                 <p className={styles.bannerTextSuccess}>
                   🎉 Congratulations! You have unlocked <strong>Free Express Shipping</strong>!
@@ -92,6 +92,12 @@ const CartPage = () => {
                   Add <strong>₹{amountForFreeShipping.toLocaleString()}</strong> more to unlock <strong>Free Express Delivery</strong>.
                 </p>
               )}
+              <div className={styles.progressBarTrack}>
+                <div 
+                  className={styles.progressBarFill} 
+                  style={{ width: `${Math.min(100, Math.round((subtotal / freeShippingThreshold) * 100))}%` }} 
+                />
+              </div>
             </div>
           </div>
 
