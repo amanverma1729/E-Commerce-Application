@@ -379,11 +379,536 @@
   background: var(--brand-primary-hover);
 }
 
-@media (max-width: 768px) {
+/* Mobile Actions & Hamburger Button (hidden on desktop) */
+.mobileActionsGroup {
+  display: none;
+  align-items: center;
+  gap: 12px;
+}
+
+.mobileQuickIcon {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-md);
+  background: var(--bg-app);
+  border: 1px solid var(--border-light);
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  text-decoration: none;
+  transition: all var(--transition-fast);
+}
+
+.mobileQuickIcon:hover {
+  background: #ffffff;
+  border-color: var(--brand-primary);
+  color: var(--brand-primary);
+}
+
+.hamburgerBtn {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-md);
+  background: var(--bg-app);
+  border: 1px solid var(--border-light);
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  cursor: pointer;
+  outline: none;
+  transition: all var(--transition-fast);
+}
+
+.hamburgerBtn:hover {
+  background: #ffffff;
+  border-color: var(--brand-primary);
+  color: var(--brand-primary);
+}
+
+.hamburgerActive {
+  background: var(--brand-primary);
+  color: #ffffff !important;
+  border-color: var(--brand-primary);
+  transform: rotate(90deg);
+}
+
+/* Mobile Drawer Overlay */
+.mobileDrawerOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 2000;
+  display: flex;
+  justify-content: flex-end;
+  animation: fadeInOverlay 0.25s ease-out forwards;
+}
+
+@keyframes fadeInOverlay {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.mobileDrawerContent {
+  width: 320px;
+  max-width: 88vw;
+  height: 100%;
+  background: #ffffff;
+  border-left: 1px solid var(--border-light);
+  display: flex;
+  flex-direction: column;
+  box-shadow: -8px 0 32px rgba(15, 23, 42, 0.18);
+  animation: slideInDrawer 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideInDrawer {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+/* Drawer Header */
+.mobileDrawerHeader {
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-light);
+  background: var(--bg-app);
+}
+
+.mobileHeaderTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mobileZapBadge {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  background: var(--brand-primary);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+
+.mobileBrandText {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: var(--text-main);
+}
+
+.closeDrawerBtn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.closeDrawerBtn:hover {
+  background: var(--color-danger-bg);
+  border-color: #fecdd3;
+  color: var(--color-danger);
+}
+
+/* Drawer Body */
+.mobileDrawerBody {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* Mobile Search Bar inside Drawer */
+.mobileSearchForm {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.mobileSearchIcon {
+  position: absolute;
+  left: 12px;
+  color: var(--text-muted);
+  font-size: 1rem;
+}
+
+.mobileSearchInput {
+  width: 100%;
+  padding: 9px 80px 9px 36px;
+  border-radius: var(--radius-full);
+  background: var(--bg-app);
+  border: 1px solid var(--border-light);
+  font-size: 0.85rem;
+  outline: none;
+}
+
+.mobileSearchInput:focus {
+  background: #ffffff;
+  border-color: var(--brand-primary);
+}
+
+.mobileSearchBtn {
+  position: absolute;
+  right: 3px;
+  padding: 5px 12px;
+  border-radius: var(--radius-full);
+  background: var(--brand-primary);
+  color: #ffffff;
+  border: none;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* Nav Sections */
+.mobileNavSection {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mobileSectionLabel {
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+
+.mobileNavLink {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  background: var(--bg-app);
+  border: 1px solid transparent;
+  color: var(--text-main);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all var(--transition-fast);
+}
+
+.mobileNavLink:hover {
+  background: #ffffff;
+  border-color: var(--border-light);
+  color: var(--brand-primary);
+}
+
+.activeMobileLink {
+  background: var(--brand-primary) !important;
+  color: #ffffff !important;
+  font-weight: 700;
+}
+
+.mobileNavIcon {
+  font-size: 1.1rem;
+}
+
+.mobileBadgeCount, .mobileCartBadgeCount {
+  margin-left: auto;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: var(--radius-full);
+}
+
+.mobileBadgeCount {
+  background: var(--color-danger);
+  color: #ffffff;
+}
+
+.mobileCartBadgeCount {
+  background: var(--brand-primary);
+  color: #ffffff;
+}
+
+.activeMobileLink .mobileBadgeCount,
+.activeMobileLink .mobileCartBadgeCount {
+  background: #ffffff;
+  color: var(--brand-primary);
+}
+
+.mobileDrawerDivider {
+  height: 1px;
+  background: var(--border-light);
+  margin: 4px 0;
+}
+
+/* Seller & Admin Feature Cards in Drawer */
+.mobileSellerCard, .mobileAdminCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.06), rgba(168, 85, 247, 0.06));
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  text-decoration: none;
+  color: var(--text-main);
+  transition: all var(--transition-fast);
+}
+
+.mobileSellerCard:hover, .mobileAdminCard:hover {
+  transform: translateY(-1px);
+  border-color: var(--brand-primary);
+}
+
+.mobileSellerIcon {
+  font-size: 1.4rem;
+  color: var(--brand-primary);
+}
+
+.mobileSellerTitle {
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.mobileSellerSub {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* User Profile & Auth Cards in Drawer */
+.mobileUserCard {
+  background: var(--bg-app);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mobileUserInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mobileUserDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+}
+
+.mobileUserName {
+  font-weight: 800;
+  font-size: 0.92rem;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.mobileUserEmail {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mobileProfileLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px;
+  border-radius: var(--radius-md);
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  color: var(--brand-primary);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.mobileLogoutBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px;
+  border-radius: var(--radius-md);
+  background: var(--color-danger-bg);
+  border: 1px solid #fecdd3;
+  color: var(--color-danger);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mobileAuthGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.mobileLoginBtn, .mobileRegisterBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px;
+  border-radius: var(--radius-md);
+  font-size: 0.86rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all var(--transition-fast);
+}
+
+.mobileLoginBtn {
+  background: var(--bg-app);
+  border: 1px solid var(--border-light);
+  color: var(--text-main);
+}
+
+.mobileRegisterBtn {
+  background: var(--brand-primary);
+  color: #ffffff;
+  box-shadow: var(--shadow-indigo);
+}
+
+.drawerLogoImg {
+  height: 42px;
+  max-width: 140px;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+  filter: drop-shadow(0 2px 8px rgba(234, 179, 8, 0.25));
+}
+
+/* Responsive Mobile & Tablet Header (Sequence: Logo -> Searchbar -> Wishlist -> Bag -> Hamburger) */
+@media (max-width: 860px) {
+  .navContainer {
+    height: 68px;
+    padding: 0 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .logoGroup {
+    order: 1;
+    flex-shrink: 0;
+  }
+
+  .brandLogoImg {
+    height: 38px;
+    max-width: 110px;
+  }
+
   .searchForm {
+    order: 2;
+    display: flex;
+    flex: 1;
+    max-width: 100%;
+    margin: 0;
+  }
+
+  .searchInput {
+    padding: 7px 60px 7px 32px;
+    font-size: 0.8rem;
+  }
+
+  .searchIcon {
+    left: 10px;
+    font-size: 0.95rem;
+  }
+
+  .searchBtn {
+    padding: 4px 10px;
+    font-size: 0.72rem;
+    right: 3px;
+  }
+
+  .actionStrip {
     display: none;
   }
-  .iconLabel {
-    display: none;
+
+  .mobileActionsGroup {
+    order: 3;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .mobileQuickIcon {
+    width: 36px;
+    height: 36px;
+    font-size: 1.05rem;
+  }
+
+  .hamburgerBtn {
+    width: 38px;
+    height: 38px;
+    font-size: 1.25rem;
   }
 }
+
+@media (max-width: 480px) {
+  .navContainer {
+    padding: 0 10px;
+    gap: 6px;
+  }
+
+  .brandLogoImg {
+    height: 34px;
+    max-width: 90px;
+  }
+
+  .searchInput {
+    padding: 6px 52px 6px 28px;
+    font-size: 0.76rem;
+  }
+
+  .searchIcon {
+    left: 8px;
+    font-size: 0.85rem;
+  }
+
+  .searchBtn {
+    padding: 3px 8px;
+    font-size: 0.7rem;
+  }
+
+  .mobileQuickIcon {
+    width: 32px;
+    height: 32px;
+    font-size: 0.95rem;
+  }
+
+  .hamburgerBtn {
+    width: 34px;
+    height: 34px;
+    font-size: 1.15rem;
+  }
+}
+

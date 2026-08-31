@@ -50,6 +50,17 @@ const Navbar = () => {
     setMobileMenuOpen(false);
   }, [location]);
 
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileMenuOpen]);
+
   const logout = () => {
     sessionStorage.removeItem("productOwnerId");
     sessionStorage.removeItem("userID");
